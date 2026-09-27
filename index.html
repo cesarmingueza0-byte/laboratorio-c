@@ -1,0 +1,1391 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Aprende C desde cero: rayos X de cada símbolo, mini-compilador con errores en español, memoria visual y retos autocorregidos.">
+<meta name="theme-color" content="#EDF1F6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D121B" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lab C">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px)}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Laboratorio C</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#EDF1F6;--surface:#FFFFFF;--surface-2:#F5F7FA;--ink:#131C2E;--ink-2:#4C5A72;--ink-3:#7A869B;--line:#D6DDE7;
+  --accent:#2952D9;--accent-ink:#FFFFFF;--accent-soft:#E2E9FC;
+  --err:#C8372D;--err-soft:#FBE9E7;--warn:#9A6400;--warn-soft:#FDF2DC;--ok:#1E7F4F;--ok-soft:#E1F3E9;--note:#2E6A9E;--note-soft:#E3EEF8;
+  --code-bg:#111826;--code-bg-2:#0B111C;--code-line:#223047;--code-ink:#D9E0EA;--code-dim:#5F6E86;--code-sel:#2A3D63;
+  --c-type:#FF8F8F;--c-kw:#CDA6FF;--c-fn:#7FD1FF;--c-str:#A9DB9F;--c-fmt:#FFC66D;--c-num:#F7AE83;--c-pre:#CDA6FF;--c-com:#6E7C94;--c-br:#F2D675;--c-var:#E8EEF7;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,"Courier New",monospace;
+  --navh:0px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0D121B;--surface:#151C28;--surface-2:#1A2231;--ink:#E4E9F1;--ink-2:#A3AFC3;--ink-3:#76839A;--line:#283246;
+    --accent:#7D9BFF;--accent-ink:#0D121B;--accent-soft:#1E2946;
+    --err:#FF7B6E;--err-soft:#3A1C1B;--warn:#F2B84B;--warn-soft:#33280F;--ok:#5BD08E;--ok-soft:#13301F;--note:#7FB6E8;--note-soft:#15263A;
+    --code-bg:#0A0F18;--code-bg-2:#060A11;--code-line:#1B2434;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0D121B;--surface:#151C28;--surface-2:#1A2231;--ink:#E4E9F1;--ink-2:#A3AFC3;--ink-3:#76839A;--line:#283246;
+  --accent:#7D9BFF;--accent-ink:#0D121B;--accent-soft:#1E2946;
+  --err:#FF7B6E;--err-soft:#3A1C1B;--warn:#F2B84B;--warn-soft:#33280F;--ok:#5BD08E;--ok-soft:#13301F;--note:#7FB6E8;--note-soft:#15263A;
+  --code-bg:#0A0F18;--code-bg-2:#060A11;--code-line:#1B2434;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 var(--body);padding-inline:16px;padding-block:0 48px;-webkit-text-size-adjust:100%}
+.wrap{max-width:1200px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+code,kbd{font-family:var(--mono);font-size:.9em}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,[tabindex]:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.muted{color:var(--ink-2)}
+
+/* header */
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;padding-block:28px 18px}
+.brand{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.brand h1{font-size:clamp(28px,4.2vw,40px);font-weight:800}
+.brand h1 .c{display:inline-block;background:var(--ink);color:var(--bg);padding:0 .22em;border-radius:6px;margin-left:.08em}
+.brand .lesson{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);font-weight:600}
+.progress{font-size:13px;color:var(--ink-2);display:flex;align-items:center;gap:10px}
+.progress .bar{width:120px;height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+.progress .bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .4s}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:22px;overflow-x:auto}
+.tab{background:none;border:0;padding:10px 16px 12px;font-weight:600;color:var(--ink-2);border-bottom:3px solid transparent;margin-bottom:-1px;white-space:nowrap;display:flex;gap:8px;align-items:baseline}
+.tab small{font-weight:400;color:var(--ink-3);font-size:12px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tab:hover{color:var(--ink)}
+.intro{max-width:70ch;color:var(--ink-2);margin-bottom:18px}
+.intro b{color:var(--ink)}
+
+/* generic */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 14px;font-weight:600;font-size:14px;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{border-color:var(--ink-3)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn kbd{font-size:11px;opacity:.75}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.label{font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+
+/* code panels */
+.code{background:var(--code-bg);color:var(--code-ink);border-radius:12px;font:14.5px/24px var(--mono);overflow-x:auto}
+.c-type{color:var(--c-type)}.c-kw{color:var(--c-kw)}.c-fn{color:var(--c-fn)}.c-str{color:var(--c-str)}.c-fmt{color:var(--c-fmt)}
+.c-num{color:var(--c-num)}.c-pre{color:var(--c-pre)}.c-com{color:var(--c-com);font-style:italic}.c-br{color:var(--c-br)}.c-var{color:var(--c-var)}
+
+/* X-ray */
+.xr-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);grid-template-areas:"code ex" "pred ex";gap:20px;align-items:start}
+.xr-grid>.xr-left{grid-area:code}.xr-grid>.ex{grid-area:ex}.xr-grid>.predict{grid-area:pred;margin-top:0}
+.progs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 14px;font-size:14px;font-weight:500}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.xr-code{padding:14px 0;outline:none}
+.xr-line{display:flex;white-space:pre;min-height:24px}
+.xr-line .n{width:44px;flex:none;text-align:right;padding-right:16px;color:var(--code-dim);user-select:none}
+.tk{border-radius:4px;cursor:pointer;padding:1px 0;transition:background .12s}
+.tk:hover{background:var(--code-line)}
+.tk.sel{background:var(--code-sel);box-shadow:0 0 0 2px var(--c-fmt)}
+.tk.same{background:#1b2a44}
+.xr-hint{font-size:13px;color:var(--ink-3);margin-top:8px}
+.ex{padding:22px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}
+.ex-tag{display:inline-block;font-size:12px;letter-spacing:.07em;text-transform:uppercase;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:2px 8px;border-radius:5px}
+.ex-title{font-size:26px;margin:10px 0 6px;font-weight:800;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+.ex-title .big{font-family:var(--mono);background:var(--code-bg);color:var(--c-fmt);padding:0 10px;border-radius:6px;font-size:24px}
+.ex-ctx{font-size:13px;color:var(--ink-2);margin-bottom:16px}
+.ex-ctx code{background:var(--surface-2);border:1px solid var(--line);padding:1px 6px;border-radius:4px;white-space:pre}
+.ex-ctx code mark{background:var(--c-fmt);color:#1a1300;border-radius:2px}
+.ex dl{margin:0;display:grid;gap:14px}
+.ex dt{font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:2px}
+.ex dd{margin:0}
+.ex dd code{background:var(--surface-2);padding:0 4px;border-radius:3px}
+.ex .ojo{background:var(--warn-soft);border-radius:8px;padding:10px 12px}
+.ex .ojo dt{color:var(--warn)}
+.ex-nav{display:flex;justify-content:space-between;align-items:center;margin-top:20px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--ink-3);gap:8px}
+.predict{margin-top:18px;padding:18px;display:grid;gap:12px}
+.predict h3{font-size:18px}
+.predict textarea,.plain-ta{width:100%;min-height:96px;font:14px/22px var(--mono);background:var(--surface-2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px 12px;resize:vertical}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cmp .col{background:var(--code-bg);color:var(--code-ink);border-radius:8px;padding:10px 12px;font:14px/22px var(--mono);white-space:pre-wrap;word-break:break-word}
+.cmp .ok{color:var(--c-str)}.cmp .bad{color:#FF8F8F}
+.verdict{font-weight:600;padding:10px 12px;border-radius:8px}
+.verdict.good{background:var(--ok-soft);color:var(--ok)}
+.verdict.meh{background:var(--warn-soft);color:var(--warn)}
+
+/* editor */
+.ed{display:flex;background:var(--code-bg);border-radius:12px;overflow:hidden;height:440px}
+.ed-gutter{width:44px;flex:none;overflow:hidden;padding:14px 0;font:14.5px/24px var(--mono);color:var(--code-dim);text-align:right;user-select:none;background:var(--code-bg-2)}
+.ed-gutter div{padding-right:12px}
+.ed-gutter .bad{color:#fff;background:var(--err)}
+.ed-main{position:relative;flex:1;min-width:0}
+.ed-hl,.ed-ta{position:absolute;inset:0;margin:0;border:0;padding:14px 16px;font:14.5px/24px var(--mono);letter-spacing:0;tab-size:4;white-space:pre;overflow:auto;background:transparent}
+.ed-hl{color:var(--code-ink);overflow:hidden;pointer-events:none}
+.ed-ta{color:transparent;caret-color:#fff;resize:none;outline:none}
+.ed-ta::selection{background:rgba(125,155,255,.35);color:transparent}
+.ed-band{position:absolute;left:0;right:0;height:24px;background:rgba(255,90,80,.16);border-left:3px solid #FF6B5E;pointer-events:none}
+.ed-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+
+/* taller */
+.tl-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);grid-template-areas:"ed res" "brk res";gap:20px;align-items:start}
+.tl-grid>.tl-ed{grid-area:ed}.tl-grid>.res{grid-area:res}.tl-grid>.breaks{grid-area:brk;margin-top:0}
+.breaks{margin-top:18px;padding:16px}
+.breaks .row{margin-top:10px}
+.breaks .chip{font-size:13px;padding:5px 12px}
+.res{display:grid;gap:14px}
+.status{display:flex;align-items:center;gap:10px;font-weight:600;padding:12px 14px;border-radius:10px}
+.status.ok{background:var(--ok-soft);color:var(--ok)}
+.status.bad{background:var(--err-soft);color:var(--err)}
+.status.warn{background:var(--warn-soft);color:var(--warn)}
+.status.idle{background:var(--surface);color:var(--ink-2);border:1px solid var(--line);font-weight:500}
+.status .dot{width:10px;height:10px;border-radius:50%;background:currentColor;flex:none}
+.msgs{display:grid;gap:8px}
+.msg{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:12px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--line);border-left-width:4px}
+.msg.error{border-left-color:var(--err)}.msg.warn{border-left-color:var(--warn)}.msg.note{border-left-color:var(--note)}
+.msg .ln{border:0;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:600;height:fit-content;white-space:nowrap}
+.msg.error .ln{background:var(--err-soft);color:var(--err)}.msg.warn .ln{background:var(--warn-soft);color:var(--warn)}.msg.note .ln{background:var(--note-soft);color:var(--note)}
+.msg .k{font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;margin-bottom:2px}
+.msg.error .k{color:var(--err)}.msg.warn .k{color:var(--warn)}.msg.note .k{color:var(--note)}
+.msg .m{font-weight:500}
+.msg .h{color:var(--ink-2);margin-top:4px}
+.msg .h code,.msg .m code{background:var(--surface-2);padding:0 4px;border-radius:3px;white-space:pre-wrap}
+.msg .g{font-size:12.5px;color:var(--ink-3);margin-top:6px}
+.console{background:var(--code-bg-2);color:#E9EEF5;border-radius:10px;padding:0;overflow:hidden}
+.console .bar{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#131b29;font-size:12px;color:#8C99AF;gap:8px;flex-wrap:wrap}
+.console .bar label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.console pre{margin:0;padding:12px 14px;font:14px/22px var(--mono);white-space:pre-wrap;word-break:break-word;min-height:70px}
+.console .nl{color:#5A6A85}
+.console .exit{color:#8C99AF;font-size:12.5px;padding:0 14px 12px;font-family:var(--mono)}
+.console .crash{color:#FF8F8F}
+.mem{padding:16px}
+.mem h3{font-size:17px;margin-bottom:4px}
+.mem .var{display:grid;grid-template-columns:minmax(120px,170px) 1fr;gap:12px;padding:10px 0;border-top:1px solid var(--line);align-items:center}
+.mem .var:first-of-type{border-top:0}
+.mem .nm{font-family:var(--mono);font-weight:600}
+.mem .meta{font-size:12px;color:var(--ink-3);font-family:var(--mono)}
+.cells{display:flex;flex-wrap:wrap;gap:0}
+.box{height:40px;border:1.5px solid var(--ink-2);border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13.5px;background-image:repeating-linear-gradient(90deg,transparent 0 25px,var(--line) 25px 26px);background-color:var(--surface-2);padding:0 4px;white-space:nowrap}
+.box.garbage{color:var(--err);border-style:dashed}
+.cell{width:34px;text-align:center}
+.cell .v{height:36px;border:1.5px solid var(--ink-2);border-left-width:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);background:var(--surface-2)}
+.cell:first-child .v{border-left-width:1.5px;border-radius:5px 0 0 5px}
+.cell:last-child .v{border-radius:0 5px 5px 0}
+.cell .v.z{color:var(--accent);font-weight:600;font-size:12px}
+.cell .v.g{color:var(--err);font-size:12px}
+.cell .i{font-size:11px;color:var(--ink-3);font-family:var(--mono)}
+.mem .foot{font-size:13px;color:var(--ink-2);margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)}
+
+/* retos */
+.rt-grid{display:grid;grid-template-columns:250px minmax(0,1fr);gap:20px;align-items:start}
+.rt-list{display:grid;gap:6px}
+.rt-item{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.rt-item[aria-current="true"]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.rt-item .st{width:20px;height:20px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff}
+.rt-item.done .st{background:var(--ok);border-color:var(--ok)}
+.rt-item .t{font-weight:600;font-size:14px}
+.lvl{font-size:11px;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:5px;white-space:nowrap}
+.lvl.l1{background:var(--ok-soft);color:var(--ok)}.lvl.l2{background:var(--warn-soft);color:var(--warn)}.lvl.l3{background:var(--err-soft);color:var(--err)}
+.rt-main{display:grid;gap:14px}
+.rt-head{padding:18px;display:grid;gap:10px}
+.rt-head h2{font-size:24px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.rt-head p code{background:var(--surface-2);padding:0 4px;border-radius:3px}
+.expect{background:var(--code-bg);color:var(--code-ink);border-radius:8px;padding:10px 12px;font:14px/22px var(--mono);white-space:pre-wrap}
+.expect .nl{color:var(--code-dim)}
+.hintbox{background:var(--note-soft);color:var(--ink);border-radius:8px;padding:10px 12px}
+.solbox{background:var(--surface-2);border:1px dashed var(--line);border-radius:8px;padding:12px}
+
+/* chuleta */
+.ch-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.ch{padding:20px}
+.ch h2{font-size:20px;margin-bottom:12px}
+.ch.wide{grid-column:1/-1}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{text-align:left;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:600;padding:6px 10px;border-bottom:1px solid var(--line)}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td code{background:var(--surface-2);padding:1px 5px;border-radius:4px;white-space:nowrap}
+td.sym code{font-size:16px;font-weight:600;color:var(--accent);background:var(--accent-soft)}
+.pipe{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.pipe .st{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:12px}
+.pipe .st b{display:block;font-family:var(--display);font-size:16px;margin-bottom:4px}
+.pipe .st code{font-size:12.5px}
+.pipe .st p{font-size:13.5px;color:var(--ink-2)}
+.road{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.road div{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13.5px;color:var(--ink-2)}
+.road div b{display:block;font-size:11px;letter-spacing:.07em;color:var(--ink-3)}
+.road div.now{border-color:var(--accent);color:var(--ink);background:var(--accent-soft)}
+.road div.now b{color:var(--accent)}
+pre.snip{margin:0;padding:14px 16px}
+
+/* barra de símbolos para móvil */
+.kbar{display:none;gap:6px;overflow-x:auto;padding:8px 2px 10px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.kbar::-webkit-scrollbar{display:none}
+.kbar button{flex:none;min-width:42px;height:42px;padding:0 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface);font:600 16px var(--mono);color:var(--ink);touch-action:manipulation}
+.kbar button:active{background:var(--accent-soft);border-color:var(--accent)}
+.kbar button.wide{font-size:14px}
+@media (pointer:coarse){
+  .kbar{display:flex}
+  .btn kbd{display:none}
+  .ed-hl,.ed-ta,.ed-gutter{font-size:16px}
+  .predict textarea,.plain-ta{font-size:16px}
+  .tk{padding:3px 2px;margin:0 -2px}
+  .btn{min-height:44px}
+  .chip{min-height:40px}
+}
+
+@media (max-width:920px){
+  .xr-grid,.tl-grid,.rt-grid{grid-template-columns:minmax(0,1fr)}
+  .xr-grid{grid-template-areas:"code" "ex" "pred"}
+  .tl-grid{grid-template-areas:"ed" "res" "brk"}
+  .ch-grid{grid-template-columns:minmax(0,1fr)}
+  .pipe{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ed{height:min(52vh,420px);min-height:280px}
+  /* explicación fija abajo mientras recorres el código */
+  .ex{position:sticky;top:auto;bottom:calc(var(--navh) + env(safe-area-inset-bottom,0px) + 8px);max-height:44vh;overflow-y:auto;padding:16px;display:flex;flex-direction:column;box-shadow:0 -8px 24px rgba(10,20,40,.18);z-index:5}
+  .ex .ex-nav{order:-1;margin:0 0 12px;padding:0 0 12px;border-top:0;border-bottom:1px solid var(--line)}
+  .ex-title{font-size:21px;margin:6px 0 4px}
+  .ex-title .big{font-size:20px}
+  .ex dl{gap:10px}
+  .rt-list{display:flex;overflow-x:auto;gap:8px;padding-bottom:4px;scrollbar-width:thin}
+  .rt-item{flex:none;min-width:200px}
+}
+@media (max-width:720px){
+  :root{--navh:62px}
+  body{padding-bottom:calc(var(--navh) + env(safe-area-inset-bottom,0px) + 24px);font-size:15px}
+  .top{padding-block:12px 10px;gap:6px 12px;align-items:center;flex-wrap:nowrap}
+  .brand{gap:2px;flex-direction:column;align-items:flex-start}
+  .brand h1{font-size:24px}
+  .brand .lesson{font-size:11px}
+  .progress{flex-direction:column;align-items:flex-end;gap:4px;font-size:12px}
+  .progress .bar{width:70px}
+  .intro{display:none}
+  .progs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px}
+  .progs::-webkit-scrollbar{display:none}
+  .progs .chip{flex:none}
+  .ex{max-height:38vh;padding:12px 14px}
+  .ex .ex-nav{margin-bottom:8px;padding-bottom:8px}
+  .ex .ex-nav .btn{min-height:38px;padding:6px 10px}
+  .ex-ctx{margin-bottom:10px}
+  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;margin:0;background:var(--surface);border-bottom:0;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);gap:0;padding:0 4px env(safe-area-inset-bottom,0px);overflow:visible}
+  .tab{justify-content:center;padding:0 4px;height:var(--navh);border-bottom:0;border-top:3px solid transparent;margin:0;font-size:14px}
+  .tab[aria-selected="true"]{border-top-color:var(--accent);border-bottom-color:transparent;color:var(--accent)}
+  .tab small{display:none}
+  .intro{font-size:14px;margin-bottom:14px}
+  .code{font-size:13.5px;line-height:23px}
+  .xr-line .n{width:30px;padding-right:10px}
+  .xr-line{min-height:23px}
+  .ch{padding:16px}
+  .rt-head{padding:14px}
+  .rt-head h2{font-size:20px}
+}
+@media (max-width:520px){
+  .cmp,.pipe{grid-template-columns:minmax(0,1fr)}
+  .mem .var{grid-template-columns:minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Laboratorio <span class="c">C</span></h1>
+      <span class="lesson">Lección 1 · Fundamentos</span>
+    </div>
+    <div class="progress"><span id="progTxt">Retos 0/7</span><span class="bar"><i id="progBar"></i></span></div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Secciones">
+    <button class="tab" role="tab" id="tab-rayos" data-tab="rayos" aria-selected="true">Rayos X <small>entiende cada pieza</small></button>
+    <button class="tab" role="tab" id="tab-taller" data-tab="taller" aria-selected="false">Taller <small>escribe y ejecuta</small></button>
+    <button class="tab" role="tab" id="tab-retos" data-tab="retos" aria-selected="false">Retos <small>demuestra que lo sabes</small></button>
+    <button class="tab" role="tab" id="tab-chuleta" data-tab="chuleta" aria-selected="false">Chuleta <small>todo en una página</small></button>
+  </nav>
+
+  <!-- RAYOS X -->
+  <section id="view-rayos" role="tabpanel" aria-labelledby="tab-rayos">
+    <p class="intro">Pulsa <b>cualquier pieza</b> del código, hasta un simple <code>;</code>, y verás qué es, por qué está ahí y qué pasa si la cambias. Con <kbd>←</kbd> <kbd>→</kbd> o los botones lo recorres <b>pieza a pieza</b>, en el orden en que lo lee el compilador.</p>
+    <div class="progs" id="progs"></div>
+    <div class="xr-grid">
+      <div class="xr-left">
+        <div class="code xr-code" id="xrCode" tabindex="0" aria-label="Código de ejemplo. Usa las flechas para recorrerlo."></div>
+        <p class="xr-hint" id="xrIdea"></p>
+      </div>
+      <aside class="panel ex" id="ex" aria-live="polite"></aside>
+        <div class="panel predict">
+          <h3>Predice la salida antes de ejecutar</h3>
+          <p class="muted">Escribe lo que crees que saldrá en pantalla, una línea por cada línea de salida. Adivinar antes de mirar es lo que hace que se te quede.</p>
+          <textarea id="predictTa" aria-label="Tu predicción" placeholder="Escribe aquí tu predicción…"></textarea>
+          <div class="row"><button class="btn primary" id="predictBtn">Ejecutar y comparar</button><button class="btn" id="toTaller">Abrir en el Taller</button></div>
+          <div id="predictOut"></div>
+        </div>
+    </div>
+  </section>
+
+  <!-- TALLER -->
+  <section id="view-taller" role="tabpanel" aria-labelledby="tab-taller" hidden>
+    <p class="intro">Un mini-compilador de C que explica los errores <b>en español</b> y te enseña cómo quedan tus variables en la memoria. Escribe, ejecuta con <kbd>Ctrl</kbd>+<kbd>Enter</kbd> y <b>rompe cosas a propósito</b>: es la forma más rápida de aprender a leer errores.</p>
+    <div class="tl-grid">
+      <div class="tl-ed">
+        <div id="tlEditor"></div>
+        <div class="ed-foot">
+          <div class="row"><button class="btn primary" id="tlRun">Compilar y ejecutar <kbd>Ctrl+Enter</kbd></button><button class="btn" id="tlReset">Restaurar ejemplo</button></div>
+        </div>
+      </div>
+      <div class="res">
+        <div id="tlResult"></div>
+        <div class="panel mem" id="tlMem"></div>
+      </div>
+      <div class="panel breaks">
+        <span class="label">Rómpelo a propósito</span>
+        <p class="muted" style="margin-top:4px">Carga un programa con el error típico, lee el mensaje e intenta arreglarlo tú.</p>
+        <div class="row" id="breaks"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RETOS -->
+  <section id="view-retos" role="tabpanel" aria-labelledby="tab-retos" hidden>
+    <p class="intro">Cada reto se comprueba automáticamente. Van de <b>fácil</b> a <b>reto</b>. Intenta no mirar la solución hasta haberte peleado un rato con el problema: ese rato es justo cuando se aprende.</p>
+    <div class="rt-grid">
+      <div class="rt-list" id="rtList"></div>
+      <div class="rt-main">
+        <div class="panel rt-head" id="rtHead"></div>
+        <div id="rtEditor"></div>
+        <div class="row"><button class="btn primary" id="rtCheck">Comprobar <kbd>Ctrl+Enter</kbd></button><button class="btn" id="rtHint">Pista</button><button class="btn" id="rtSol">Ver solución</button></div>
+        <div id="rtExtra"></div>
+        <div id="rtResult"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHULETA -->
+  <section id="view-chuleta" role="tabpanel" aria-labelledby="tab-chuleta" hidden>
+    <div class="ch-grid">
+      <div class="panel ch">
+        <h2>El esqueleto (apréndetelo de memoria)</h2>
+        <pre class="code snip"><span class="c-pre">#include &lt;stdio.h&gt;</span>
+
+<span class="c-type">int</span> <span class="c-fn">main</span><span class="c-br">(</span><span class="c-kw">void</span><span class="c-br">)</span> <span class="c-br">{</span>
+    <span class="c-com">// tu código aquí</span>
+    <span class="c-kw">return</span> <span class="c-num">0</span>;
+<span class="c-br">}</span></pre>
+        <p class="muted" style="margin-top:12px">Escríbelo 5 veces de memoria, sin mirar. En serio: es lo primero que tienes que hacer en cada ejercicio de examen.</p>
+      </div>
+      <div class="panel ch">
+        <h2>La regla de las comillas</h2>
+        <div class="tbl-wrap"><table>
+          <tr><th>Escribes</th><th>C entiende</th><th>Tipo</th><th>printf</th></tr>
+          <tr><td><code>B</code></td><td>el nombre de una variable</td><td>—</td><td>—</td></tr>
+          <tr><td><code>'B'</code></td><td>un carácter</td><td><code>char</code></td><td><code>%c</code></td></tr>
+          <tr><td><code>"Saul"</code></td><td>un texto</td><td><code>char[]</code></td><td><code>%s</code></td></tr>
+          <tr><td><code>18</code></td><td>un número entero</td><td><code>int</code></td><td><code>%d</code></td></tr>
+          <tr><td><code>7.25</code></td><td>un número decimal</td><td><code>double</code></td><td><code>%f</code></td></tr>
+        </table></div>
+      </div>
+      <div class="panel ch wide">
+        <h2>Cada símbolo tiene un único papel</h2>
+        <div class="tbl-wrap"><table>
+          <tr><th>Símbolo</th><th>Nombre</th><th>Para qué sirve</th><th>Ejemplo</th><th>Teclado español</th></tr>
+          <tr><td class="sym"><code>( )</code></td><td>paréntesis</td><td>Llamar funciones y agrupar operaciones</td><td><code>printf(...)</code> <code>(a + b) * 2</code></td><td>Shift + 8 / 9</td></tr>
+          <tr><td class="sym"><code>{ }</code></td><td>llaves</td><td>Abrir y cerrar un bloque de código</td><td><code>int main(void) { ... }</code></td><td>AltGr + tecla junto a P / Ñ</td></tr>
+          <tr><td class="sym"><code>[ ]</code></td><td>corchetes</td><td>Arrays (filas de cajas)</td><td><code>char nombre[]</code></td><td>AltGr + tecla ` / +</td></tr>
+          <tr><td class="sym"><code>;</code></td><td>punto y coma</td><td>Terminar una instrucción</td><td><code>int x = 5;</code></td><td>Shift + ,</td></tr>
+          <tr><td class="sym"><code>,</code></td><td>coma</td><td>Separar datos o variables</td><td><code>printf("%d", x)</code></td><td>,</td></tr>
+          <tr><td class="sym"><code>" "</code></td><td>comillas dobles</td><td>Texto</td><td><code>"Hola"</code></td><td>Shift + 2</td></tr>
+          <tr><td class="sym"><code>' '</code></td><td>comillas simples</td><td>Un solo carácter</td><td><code>'B'</code></td><td>tecla junto al 0</td></tr>
+          <tr><td class="sym"><code>#</code></td><td>almohadilla</td><td>Órdenes previas a compilar</td><td><code>#include</code></td><td>AltGr + 3</td></tr>
+          <tr><td class="sym"><code>\</code></td><td>barra invertida</td><td>Caracteres especiales dentro de un texto</td><td><code>\n</code> <code>\t</code></td><td>AltGr + º</td></tr>
+          <tr><td class="sym"><code>%</code></td><td>porcentaje</td><td>Dentro de printf: un hueco. Fuera: el resto de una división</td><td><code>%d</code> · <code>7 % 2</code></td><td>Shift + 5</td></tr>
+          <tr><td class="sym"><code>=</code></td><td>igual</td><td>Guardar un valor (asignar)</td><td><code>x = 5;</code></td><td>Shift + 0</td></tr>
+          <tr><td class="sym"><code>==</code></td><td>doble igual</td><td>Comparar (lección 3)</td><td><code>x == 5</code></td><td>—</td></tr>
+        </table></div>
+      </div>
+      <div class="panel ch">
+        <h2>Tipos básicos</h2>
+        <div class="tbl-wrap"><table>
+          <tr><th>Tipo</th><th>Guarda</th><th>Bytes</th><th>printf</th><th>scanf</th></tr>
+          <tr><td><code>int</code></td><td>enteros (±2.147 millones)</td><td>4</td><td><code>%d</code></td><td><code>%d</code></td></tr>
+          <tr><td><code>double</code></td><td>decimales, ~15 cifras</td><td>8</td><td><code>%f</code></td><td><code>%lf</code></td></tr>
+          <tr><td><code>float</code></td><td>decimales, ~7 cifras</td><td>4</td><td><code>%f</code></td><td><code>%f</code></td></tr>
+          <tr><td><code>char</code></td><td>un carácter (es un número ASCII)</td><td>1</td><td><code>%c</code></td><td><code>%c</code></td></tr>
+          <tr><td><code>char[]</code></td><td>un texto + <code>'\0'</code> final</td><td>letras+1</td><td><code>%s</code></td><td><code>%s</code></td></tr>
+        </table></div>
+        <p class="muted" style="margin-top:10px">Formato: <code>%.2f</code> → 2 decimales · <code>%5d</code> → ancho 5 · <code>%%</code> → un % literal.</p>
+      </div>
+      <div class="panel ch">
+        <h2>Los 9 errores que vas a cometer</h2>
+        <div class="tbl-wrap"><table>
+          <tr><th>Lo que ves</th><th>Arreglo</th></tr>
+          <tr><td><code>expected ';'</code></td><td>Falta <code>;</code> (mira también la línea anterior)</td></tr>
+          <tr><td><code>expected '{' before '['</code></td><td>Los bloques van con <code>{ }</code></td></tr>
+          <tr><td><code>'Saul' undeclared</code></td><td>Un texto va entre comillas: <code>"Saul"</code></td></tr>
+          <tr><td><code>makes integer from pointer</code></td><td><code>char c = 'B';</code> no <code>"B"</code></td></tr>
+          <tr><td>número raro en pantalla</td><td>Hueco equivocado: <code>%f</code> para double</td></tr>
+          <tr><td><code>implicit declaration of printf</code></td><td>Falta <code>#include &lt;stdio.h&gt;</code></td></tr>
+          <tr><td><code>studio.h: No such file</code></td><td>Es <code>stdio.h</code></td></tr>
+          <tr><td><code>'Printf' undeclared</code></td><td>Todo en minúscula</td></tr>
+          <tr><td><code>double c = 7/2</code> da 3.0</td><td>Usa <code>7.0 / 2</code></td></tr>
+        </table></div>
+      </div>
+      <div class="panel ch wide">
+        <h2>Qué pasa cuando compilas</h2>
+        <div class="pipe">
+          <div class="st"><b>1 · Preprocesador</b><p>Resuelve las líneas con <code>#</code>: pega el contenido de stdio.h y quita los comentarios.</p></div>
+          <div class="st"><b>2 · Compilador</b><p>Revisa la gramática (aquí salen los errores) y traduce tu C a instrucciones de máquina.</p></div>
+          <div class="st"><b>3 · Enlazador</b><p>Une tu código con el de printf, que ya estaba hecho en la librería.</p></div>
+          <div class="st"><b>4 · Ejecutable</b><p>Sale <code>hola.exe</code>. Solo ahora se ejecuta tu programa.</p></div>
+        </div>
+        <pre class="code snip" style="margin-top:14px"><span class="c-com"># todo de una vez, con todos los avisos activados:</span>
+gcc -Wall -o hola hola.c
+./hola</pre>
+      </div>
+      <div class="panel ch wide">
+        <h2>El mapa del curso</h2>
+        <div class="road">
+          <div class="now"><b>LECCIÓN 1 · AHORA</b>Estructura, printf, variables y tipos</div>
+          <div><b>LECCIÓN 2</b>Operadores, scanf, conversiones</div>
+          <div><b>LECCIÓN 3</b>if, switch, lógica</div>
+          <div><b>LECCIÓN 4</b>Bucles while, for, do-while</div>
+          <div><b>LECCIÓN 5</b>Funciones y ámbito</div>
+          <div><b>LECCIÓN 6</b>Arrays</div>
+          <div><b>LECCIÓN 7</b>Strings y string.h</div>
+          <div><b>LECCIÓN 8</b>Punteros</div>
+          <div><b>LECCIÓN 9</b>Paso por referencia</div>
+          <div><b>LECCIÓN 10</b>malloc y free</div>
+          <div><b>LECCIÓN 11</b>struct y typedef</div>
+          <div><b>LECCIÓN 12</b>Ficheros y listas</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const store={get(k,d){try{const v=localStorage.getItem('labc.'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('labc.'+k,JSON.stringify(v))}catch(e){}}};
+
+/* ================= MINI COMPILADOR ================= */
+class CErr extends Error{constructor(line,msg,hint,gcc){super(msg);this.line=line;this.hint=hint||'';this.gcc=gcc||''}}
+const TYPES=['int','double','float','char'];
+const KEYWORDS=new Set(['int','double','float','char','void','return','if','else','for','while','do','switch','case','break','continue','const','unsigned','long','short','struct','typedef','sizeof','static','default','goto','enum','union','signed','extern','register','volatile','auto']);
+const LATER={if:3,else:3,switch:3,case:3,for:4,while:4,do:4,break:4,continue:4,struct:11,typedef:11,sizeof:6,scanf:2,strcpy:7,strlen:7,strcmp:7,malloc:10,free:10,fopen:12,getchar:2,puts:7,gets:7};
+const PUNCT2=['++','--','+=','-=','*=','/=','%=','==','!=','<=','>=','&&','||'];
+const PUNCT1='{}()[];,=+-*/%<>!&.?:';
+const HEADERS=['stdio.h','stdlib.h','string.h','math.h','ctype.h','stdbool.h','time.h','limits.h','float.h'];
+function unesc(c){const m={n:'\n',t:'\t','\\':'\\','"':'"',"'":"'",'0':'\0',r:'\r',a:'\x07'};return c in m?m[c]:(c||'')}
+function cleanWord(w){return w.replace(/ñ/g,'ny').replace(/Ñ/g,'NY').normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
+const ACC=/[À-ÿ]/;
+
+function lex(src){
+  const toks=[];let i=0,line=1;const n=src.length;
+  const wordAt=k=>{let a=k,b=k;while(a>0&&/[\wÀ-ÿ]/.test(src[a-1]))a--;while(b<n&&/[\wÀ-ÿ]/.test(src[b]))b++;return src.slice(a,b)};
+  const accentErr=(l,k)=>{const w=wordAt(k);return new CErr(l,`"${w}" lleva tilde o ñ. Los nombres en C solo admiten letras inglesas (a-z, A-Z), números y _.`,`Cámbialo, por ejemplo, por <code>${esc(cleanWord(w))}</code>. Dentro de un texto entre comillas sí puedes usar tildes.`,`stray '\\${w}' in program`)};
+  while(i<n){
+    const ch=src[i];
+    if(ch==='\n'){line++;i++;continue}
+    if(ch===' '||ch==='\t'||ch==='\r'||ch==='\u00a0'){i++;continue}
+    const s=i,l=line;
+    if(ch==='/'&&src[i+1]==='/'){while(i<n&&src[i]!=='\n')i++;continue}
+    if(ch==='/'&&src[i+1]==='*'){i+=2;while(i<n&&!(src[i]==='*'&&src[i+1]==='/')){if(src[i]==='\n')line++;i++}
+      if(i>=n)throw new CErr(l,'Hay un comentario <code>/*</code> que nunca se cierra.','Ciérralo con <code>*/</code>.','unterminated comment');i+=2;continue}
+    if(ch==='#'){while(i<n&&src[i]!=='\n')i++;toks.push({type:'pre',val:src.slice(s,i),line:l});continue}
+    if(/[“”„«»]/.test(ch))throw new CErr(l,'Estas comillas son tipográficas (“ ”). Salen al copiar de Word, de un PDF o del móvil.','C solo acepta las comillas rectas del teclado: <code>"</code> (Shift + 2).',`stray '${ch}' in program`);
+    if(/[‘’´`]/.test(ch))throw new CErr(l,`El símbolo ${ch} no es una comilla simple válida.`,"Usa la comilla recta <code>'</code> (la tecla junto al 0).",`stray '${ch}' in program`);
+    if(ACC.test(ch))throw accentErr(l,i);
+    if(/[A-Za-z_]/.test(ch)){while(i<n&&/[A-Za-z0-9_]/.test(src[i]))i++;
+      if(i<n&&ACC.test(src[i]))throw accentErr(l,i);
+      toks.push({type:'id',val:src.slice(s,i),line:l});continue}
+    if(/[0-9]/.test(ch)||(ch==='.'&&/[0-9]/.test(src[i+1]))){
+      while(i<n&&/[0-9.]/.test(src[i]))i++;
+      const text=src.slice(s,i);const isF=text.includes('.');
+      if(i<n&&/[fF]/.test(src[i])&&isF)i++;
+      else while(i<n&&/[lLuU]/.test(src[i]))i++;
+      if(i<n&&/[A-Za-z_]/.test(src[i])){let j=i;while(j<n&&/\w/.test(src[j]))j++;const w=src.slice(s,j);
+        throw new CErr(l,`"${esc(w)}" no es válido: un nombre de variable no puede empezar por un número.`,`Pon una letra delante, por ejemplo <code>n${esc(w)}</code>.`,`invalid suffix on integer constant`)}
+      if((text.match(/\./g)||[]).length>1)throw new CErr(l,`El número "${text}" tiene más de un punto.`,'Un decimal lleva un único punto: <code>3.14</code>.','too many decimal points in number');
+      toks.push({type:'num',val:text,isFloat:isF,value:parseFloat(text),line:l});continue}
+    if(ch==='"'){i++;let v='';
+      while(i<n&&src[i]!=='"'){
+        if(src[i]==='\n')break;
+        if(src[i]==='\\'){v+=unesc(src[i+1]);i+=2}else{v+=src[i];i++}}
+      if(i>=n||src[i]!=='"')throw new CErr(l,'Este texto no está cerrado: falta la comilla doble <code>"</code> del final.','Cada <code>"</code> de apertura necesita otra de cierre en la misma línea.','missing terminating " character');
+      i++;toks.push({type:'str',val:v,line:l});continue}
+    if(ch==="'"){i++;let v='';
+      while(i<n&&src[i]!=="'"&&src[i]!=='\n'){if(src[i]==='\\'){v+=unesc(src[i+1]);i+=2}else{v+=src[i];i++}}
+      if(src[i]!=="'")throw new CErr(l,"Falta la comilla simple <code>'</code> de cierre.","Un carácter se escribe así: <code>'B'</code>.","missing terminating ' character");
+      i++;
+      if(v.length===0)throw new CErr(l,"<code>''</code> está vacío: entre comillas simples va exactamente un carácter.","Por ejemplo: <code>'B'</code>.",'empty character constant');
+      if(v.length>1)throw new CErr(l,`<code>'${esc(v)}'</code> tiene ${v.length} caracteres, y las comillas simples son para UN solo carácter.`,`Si querías un texto, usa comillas dobles: <code>"${esc(v)}"</code> y guárdalo en un <code>char[]</code>.`,'multi-character character constant');
+      toks.push({type:'chr',val:v,line:l});continue}
+    const two=src.substr(i,2);
+    if(PUNCT2.includes(two)){toks.push({type:'p',val:two,line:l});i+=2;continue}
+    if(PUNCT1.includes(ch)){toks.push({type:'p',val:ch,line:l});i++;continue}
+    throw new CErr(l,`El símbolo <code>${esc(ch)}</code> no tiene sentido aquí en C.`,'Revisa si es un fallo de teclado.',`stray '${ch}' in program`);
+  }
+  toks.push({type:'eof',val:'',line});
+  return toks;
+}
+
+function specKind(c){if('diouxXc'.includes(c))return 'int';if('fFeEgG'.includes(c))return 'double';if(c==='s')return 'string';if(c==='p')return 'ptr';return null}
+function parseFmt(f){const out=[];const re=/%([-+ 0#]*)(\d+)?(?:\.(\d*))?(hh|h|ll|l|L)?([diouxXfFeEgGcsp%])?/g;let m;
+  while((m=re.exec(f))){out.push({raw:m[0],index:m.index,flags:m[1]||'',width:m[2]?+m[2]:null,prec:m[3]!==undefined?(m[3]===''?0:+m[3]):null,conv:m[5]||null})}
+  return out}
+const TNAME={int:'int',double:'double',char:'char',string:'texto (char[])'};
+const HOLE={int:'%d',double:'%f',char:'%c',string:'%s'};
+
+function compile(src){
+  const warnings=[],notes=[];const toks=lex(src);const headers=new Set();const code=[];
+  const opsUsed=new Set();const fmts=[];const nums=[];
+  for(const t of toks){
+    if(t.type!=='pre'){code.push(t);if(t.type==='num')nums.push(t.value);continue}
+    const m=t.val.match(/^#\s*include\s*([<"])\s*([\w.\/]+)\s*([>"])\s*(.*)$/);
+    if(m){
+      const rest=m[4].replace(/\/\/.*$/,'').trim();
+      if(rest===';')warnings.push({line:t.line,msg:'Sobra el <code>;</code> al final del #include.',hint:'Las líneas que empiezan por <code>#</code> no son instrucciones de C: no llevan punto y coma.',gcc:'extra tokens at end of #include directive'});
+      else if(rest)warnings.push({line:t.line,msg:'Hay algo de más detrás del #include.',hint:'Cada #include va solo en su línea.',gcc:'extra tokens at end of #include directive'});
+      const h=m[2];
+      if(!HEADERS.includes(h)){
+        const sug=/stud|sdtio|stido|stdi[^o]|stdo/i.test(h)?'Se escribe <code>stdio.h</code>: <b>st</b>andar<b>d</b> <b>i</b>nput <b>o</b>utput. No es "studio".':'Revisa el nombre. En esta lección solo necesitas <code>stdio.h</code>.';
+        throw new CErr(t.line,`No existe la librería "${esc(h)}".`,sug,`fatal error: ${h}: No such file or directory`)}
+      headers.add(h);continue}
+    if(/^#\s*include/i.test(t.val)&&!/^#\s*include/.test(t.val))throw new CErr(t.line,'<code>include</code> va en minúscula.','<code>#include &lt;stdio.h&gt;</code>','invalid preprocessing directive');
+    if(/^#\s*include/.test(t.val)){const nm=((t.val.match(/include\s*(\S+)/)||[])[1]||'stdio.h').replace(/[<>";]/g,'');
+      throw new CErr(t.line,'El #include está mal escrito: el nombre de la librería va entre <code>&lt; &gt;</code>.',`Escribe: <code>#include &lt;${esc(nm)}&gt;</code>`,'#include expects "FILENAME" or <FILENAME>')}
+    if(/^#\s*define/.test(t.val))throw new CErr(t.line,'#define todavía no está en el Taller.','Por ahora declara una variable normal.');
+    throw new CErr(t.line,`No entiendo la directiva <code>${esc(t.val)}</code>.`,'En la lección 1 solo se usa <code>#include &lt;stdio.h&gt;</code>.','invalid preprocessing directive');
+  }
+  let p=0;const decl=new Map();
+  const peek=(k=0)=>code[Math.min(p+k,code.length-1)];
+  const next=()=>code[p++];
+  const is=(v,k=0)=>{const t=peek(k);return (t.type==='p'||t.type==='id')&&t.val===v};
+  const show=t=>t.type==='eof'?'el final del programa':t.type==='str'?`<code>"${esc(t.val)}"</code>`:t.type==='chr'?`<code>'${esc(t.val)}'</code>`:`<code>${esc(t.val)}</code>`;
+  const prevLine=()=>p>0?code[p-1].line:1;
+  function expect(v,msg,hint,gcc){if(is(v))return next();const t=peek();throw new CErr(t.line,msg||`Esperaba <code>${esc(v)}</code> y he encontrado ${show(t)}.`,hint,gcc||`expected '${v}'`)}
+  function semi(){if(is(';'))return next();const t=peek();
+    throw new CErr(prevLine(),'Falta el punto y coma <code>;</code> al final de esta línea.','Cada instrucción termina en <code>;</code>. Ojo: el compilador de verdad suele avisarte en la línea <b>siguiente</b>, porque se da cuenta del fallo al leerla.',`expected ';' before ${t.type==='eof'?'end of input':`'${t.val}'`}`)}
+  function undeclared(t){const v=t.val;
+    const ci=[...decl.keys()].find(k=>k.toLowerCase()===v.toLowerCase());
+    if(ci)return new CErr(t.line,`"${esc(v)}" no existe. Declaraste "${esc(ci)}", con otras mayúsculas.`,'C distingue mayúsculas: <code>edad</code>, <code>Edad</code> y <code>EDAD</code> serían tres variables distintas.',`'${v}' undeclared; did you mean '${ci}'?`);
+    if(TYPES.includes(v.toLowerCase())||['printf','return','main'].includes(v.toLowerCase()))return new CErr(t.line,`"${esc(v)}" va en minúscula: <code>${v.toLowerCase()}</code>.`,'C distingue mayúsculas y minúsculas.',`'${v}' undeclared`);
+    const hint=/^[A-Za-z]$/.test(v)?`Si querías el carácter ${esc(v)}, ponlo entre comillas simples: <code>'${esc(v)}'</code>. Si es una variable, declárala antes: <code>int ${esc(v)} = ...;</code>`:`Si querías escribir el texto ${esc(v)}, ponlo entre comillas dobles: <code>"${esc(v)}"</code>. Si es una variable, declárala antes de usarla: <code>int ${esc(v)} = ...;</code>`;
+    return new CErr(t.line,`"${esc(v)}" no está declarado: C no sabe qué es.`,hint,`'${v}' undeclared (first use in this function)`)}
+  function typeOf(e){switch(e.k){case 'num':return e.t;case 'chr':return 'char';case 'str':return 'string';
+    case 'var':{const d=decl.get(e.name);return d.arr?'string':(d.type==='float'?'double':d.type)}
+    case 'neg':{const t=typeOf(e.a);return t==='char'?'int':t}
+    case 'cast':return e.t==='float'?'double':e.t;
+    case 'bin':{const a=typeOf(e.a),b=typeOf(e.b);return (a==='double'||b==='double')?'double':'int'}}}
+  function hasIntDiv(e){if(e.k==='bin'){if(e.op==='/'&&typeOf(e)==='int')return true;return hasIntDiv(e.a)||hasIntDiv(e.b)}if(e.k==='neg')return hasIntDiv(e.a);return false}
+  function bin(op,a,b,line){const ta=typeOf(a),tb=typeOf(b);opsUsed.add(op);
+    if(ta==='string'||tb==='string')throw new CErr(line,`No se puede hacer <code>${op}</code> con textos.`,op==='+'?'En C, <code>+</code> no une textos. Para mostrar varias cosas seguidas usa varios huecos en printf: <code>printf("%s %s", a, b);</code>':'Las operaciones matemáticas solo funcionan con números.','invalid operands to binary '+op);
+    if(op==='%'&&(ta==='double'||tb==='double'))throw new CErr(line,'El operador <code>%</code> (resto) solo funciona con números enteros.','Con decimales no hay resto en C. Usa variables <code>int</code>.','invalid operands to binary %');
+    return {k:'bin',op,a,b,line}}
+  function expr(){let a=term();while(is('+')||is('-')){const t=next();a=bin(t.val,a,term(),t.line)}return a}
+  function term(){let a=unary();while(is('*')||is('/')||is('%')){const t=next();a=bin(t.val,a,unary(),t.line)}return a}
+  function unary(){
+    if(is('-')){const t=next();const a=unary();if(typeOf(a)==='string')throw new CErr(t.line,'No se puede poner un signo menos a un texto.','');return {k:'neg',a,line:t.line}}
+    if(is('+')){next();return unary()}
+    if(is('(')&&peek(1).type==='id'&&TYPES.includes(peek(1).val)&&is(')',2)){const t=next();const ty=next().val;next();const a=unary();
+      if(typeOf(a)==='string')throw new CErr(t.line,'Un texto no se puede convertir a número así.','');return {k:'cast',t:ty,a,line:t.line}}
+    return primary()}
+  function primary(){const t=peek();
+    if(t.type==='num'){next();return {k:'num',v:t.value,t:t.isFloat?'double':'int',line:t.line}}
+    if(t.type==='chr'){next();return {k:'chr',v:t.val.charCodeAt(0),line:t.line}}
+    if(t.type==='str'){next();return {k:'str',v:t.val,line:t.line}}
+    if(t.type==='id'){
+      if(decl.has(t.val)){next();
+        if(is('['))throw new CErr(t.line,'Acceder a una letra suelta con <code>[ ]</code> lo verás en la lección 7.','Por ahora usa la variable entera.');
+        if(is('('))throw new CErr(t.line,`<code>${esc(t.val)}</code> es una variable, no una función: no lleva paréntesis detrás.`,'');
+        return {k:'var',name:t.val,line:t.line}}
+      if(LATER[t.val]!==undefined)throw new CErr(t.line,`<code>${esc(t.val)}</code> es de la lección ${LATER[t.val]}. El Taller ahora cubre la lección 1.`,'Cuando lleguemos, lo desbloqueamos.');
+      throw undeclared(t)}
+    if(is('(')){next();const e=expr();expect(')','Falta cerrar un paréntesis: <code>)</code>','Cuenta: cada <code>(</code> necesita su <code>)</code>.');return e}
+    if(t.type==='eof')throw new CErr(t.line,'El programa se acaba a mitad de una operación.','');
+    throw new CErr(t.line,`Aquí esperaba un valor (un número, una variable, <code>'c'</code> o <code>"texto"</code>) y he encontrado ${show(t)}.`,t.val===';'?'Te falta el valor. Por ejemplo: <code>x = 5;</code>':'Revisa esta operación.',`expected expression before '${t.val}' token`)}
+  function checkStringInto(type,name,init,line){
+    if(typeOf(init)!=='string')return;
+    const lit=init.k==='str'?init.v:null;
+    if(type==='char'&&lit!==null&&lit.length===1)throw new CErr(line,`Para un solo carácter usa comillas simples: <code>'${esc(lit)}'</code>.`,`Con comillas dobles, <code>"${esc(lit)}"</code> es un texto, no un carácter. Escribe: <code>char ${esc(name)} = '${esc(lit)}';</code>`,"initialization of 'char' from 'char *' makes integer from pointer without a cast");
+    const ej=lit!==null?`"${esc(lit)}"`:'"..."';
+    if(type==='char')throw new CErr(line,'Un <code>char</code> guarda UN solo carácter, no un texto.',`Para guardar un texto añade corchetes: <code>char ${esc(name)}[] = ${ej};</code>`,"initialization of 'char' from 'char *' makes integer from pointer without a cast");
+    throw new CErr(line,`Un <code>${type}</code> guarda números, no textos.`,`Para guardar un texto: <code>char ${esc(name)}[] = ${ej};</code>`,`initialization of '${type}' from 'char *' makes integer from pointer without a cast`)}
+  function divNote(type,name,init,line){
+    if((type==='double'||type==='float')&&typeOf(init)==='int'&&hasIntDiv(init))
+      notes.push({line,msg:`La división se hace entre dos <code>int</code>, así que se corta a entero <b>antes</b> de guardarse en <code>${esc(name)}</code>.`,hint:'Para que salgan decimales, uno de los dos tiene que ser double: <code>7.0 / 2</code> o <code>(double)a / b</code>.'})}
+
+  function declaration(){
+    const type=next().val;const out=[];
+    while(true){
+      const nt=peek();
+      if(nt.type!=='id'){
+        if(nt.type==='num')throw new CErr(nt.line,'Un nombre de variable no puede empezar por un número.',`Por ejemplo: <code>${type} n${esc(nt.val)} = ...;</code>`);
+        throw new CErr(nt.line,`Después de <code>${type}</code> tiene que ir el nombre de la variable.`,`Por ejemplo: <code>${type} ${type==='char'?"letra = 'A'":type==='int'?'edad = 18':'nota = 7.5'};</code>`,'expected identifier');}
+      if(KEYWORDS.has(nt.val)||nt.val==='printf'||nt.val==='main')throw new CErr(nt.line,`<code>${esc(nt.val)}</code> es una palabra reservada de C: no puede ser el nombre de una variable.`,'Elige otro nombre.');
+      next();const name=nt.val;
+      if(decl.has(name))throw new CErr(nt.line,`La variable <code>${esc(name)}</code> ya existe: la declaraste en la línea ${decl.get(name).line}.`,`Para cambiar su valor no repitas el tipo. Escribe solo: <code>${esc(name)} = ...;</code>`,`redefinition of '${name}'`);
+      let arr=false,size=null;
+      if(is('[')){next();arr=true;
+        if(peek().type==='num'){const s=next();if(s.isFloat)throw new CErr(s.line,'El tamaño de un array tiene que ser un entero.','');size=s.value}
+        expect(']','Falta cerrar el corchete: <code>]</code>');
+        if(type!=='char')throw new CErr(nt.line,`Los arrays de ${type} los verás en la lección 6.`,'Por ahora el Taller solo acepta arrays de char, es decir, textos: <code>char nombre[] = "Saul";</code>');}
+      let init=null;
+      if(is('==')){throw new CErr(peek().line,'Para dar un valor se usa un solo <code>=</code>.','El <code>==</code> es para comparar (lección 3).')}
+      if(is('=')){next();init=expr()}
+      if(arr){
+        if(init&&init.k!=='str')throw new CErr(nt.line,'Un <code>char[]</code> se rellena con un texto entre comillas dobles.',`<code>char ${esc(name)}[] = "texto";</code>`);
+        if(!init&&size===null)throw new CErr(nt.line,`Si no le das un texto a <code>${esc(name)}[]</code>, tienes que poner su tamaño entre los corchetes.`,`<code>char ${esc(name)}[20];</code> o bien <code>char ${esc(name)}[] = "texto";</code>`,`array size missing in '${name}'`);
+        if(init){const L=init.v.length;
+          if(size===null)size=L+1;
+          else if(size<L)warnings.push({line:nt.line,msg:`"${esc(init.v)}" tiene ${L} caracteres y no cabe en <code>${esc(name)}[${size}]</code>.`,hint:`Hace falta tamaño ${L+1}: los ${L} caracteres + 1 casilla para el <code>'\\0'</code> final. O deja los corchetes vacíos y C lo calcula.`,gcc:"initializer-string for array of 'char' is too long"});
+          else if(size===L)notes.push({line:nt.line,msg:`<code>${esc(name)}[${size}]</code> no deja sitio para el <code>'\\0'</code> final.`,hint:`Usa tamaño ${L+1} o deja los corchetes vacíos. Sin <code>'\\0'</code>, printf no sabe dónde acaba el texto y sigue imprimiendo basura.`})}
+      }else if(init){checkStringInto(type,name,init,nt.line);divNote(type,name,init,nt.line)}
+      decl.set(name,{type,arr,size,line:nt.line});
+      out.push({k:'decl',name,type,arr,size,init,line:nt.line});
+      if(is(',')){next();if(peek().type==='num')throw new CErr(peek().line,'Después de la coma espero el nombre de otra variable, no un número.','¿Has escrito un decimal con coma? En C los decimales van con <b>punto</b>: <code>7.25</code>');continue}
+      semi();break}
+    return out}
+
+  function printfStmt(){
+    const t=next();
+    if(!headers.has('stdio.h'))throw new CErr(t.line,'printf no está disponible: falta <code>#include &lt;stdio.h&gt;</code> al principio.','printf vive en la librería stdio.h. Sin ese #include, C no sabe qué es printf.',"implicit declaration of function 'printf'");
+    expect('(','Después de printf van paréntesis: <code>printf("texto");</code>');
+    const f=peek();
+    if(f.type!=='str'){
+      if(f.type==='id'&&decl.has(f.val)){const d=decl.get(f.val);const h=d.arr?'%s':HOLE[d.type==='float'?'double':d.type];
+        throw new CErr(f.line,'Lo primero dentro de printf tiene que ser el texto entre comillas, con los huecos.',`Por ejemplo: <code>printf("${h}\\n", ${esc(f.val)});</code>`)}
+      if(f.type==='chr')throw new CErr(f.line,'printf necesita comillas dobles, no simples.',`<code>printf("${esc(f.val)}");</code>`);
+      if(f.type==='id')throw new CErr(f.line,`<code>${esc(f.val)}</code> no está declarado. Si es texto, va entre comillas dobles.`,`<code>printf("${esc(f.val)}\\n");</code>`,`'${f.val}' undeclared`);
+      throw new CErr(f.line,'printf necesita un texto entre comillas dobles.','<code>printf("Hola\\n");</code>')}
+    next();fmts.push(f.val);
+    const args=[];
+    while(is(',')){next();if(is(')'))throw new CErr(peek().line,'Sobra una coma antes del paréntesis de cierre.','');args.push(expr())}
+    if(['str','id','num','chr'].includes(peek().type))throw new CErr(peek().line,'Falta una coma: el texto y cada valor se separan con comas.','<code>printf("Tengo %d años\\n", edad);</code>',"expected ')' before '"+peek().val+"'");
+    expect(')','Falta cerrar el paréntesis de printf: <code>)</code>','<code>printf("...");</code>');
+    semi();
+    const specs=parseFmt(f.val);const real=specs.filter(s=>s.conv!=='%');
+    specs.filter(s=>!s.conv).forEach(s=>warnings.push({line:t.line,msg:`Hay un <code>%</code> suelto en el texto.`,hint:'Para imprimir el símbolo % escribe <code>%%</code>. Para un hueco: <code>%d</code>, <code>%f</code>, <code>%c</code> o <code>%s</code>.',gcc:'spurious trailing % in format'}));
+    const holes=real.filter(s=>s.conv);
+    if(holes.length>args.length)warnings.push({line:t.line,msg:`El texto tiene ${holes.length} hueco(s) (${holes.map(s=>'<code>'+esc(s.raw)+'</code>').join(' ')}) pero solo le das ${args.length} valor(es).`,hint:'Cada hueco necesita su valor detrás, separado por comas y en el mismo orden. El hueco sin valor imprime basura.',gcc:`format '${holes[args.length].raw}' expects a matching argument`});
+    if(args.length>holes.length)warnings.push({line:t.line,msg:`Le das ${args.length} valor(es) a printf, pero el texto solo tiene ${holes.length} hueco(s).`,hint:holes.length===0?'Para que se vea un valor, pon un hueco en el texto: <code>%d</code> int · <code>%f</code> double · <code>%c</code> char · <code>%s</code> texto.':'Los valores que sobran no se imprimen.',gcc:'too many arguments for format'});
+    holes.forEach((s,idx)=>{const a=args[idx];if(!a)return;const at=typeOf(a);const kind=specKind(s.conv);
+      const nm=a.k==='var'?`<code>${esc(a.name)}</code>`:'ese valor';
+      let m=null;
+      if(kind==='int'&&at==='double')m={msg:`<code>${esc(s.raw)}</code> es para enteros, pero ${nm} es un double.`,hint:'Usa <code>%f</code> (o <code>%.2f</code> para dos decimales). Si no, saldrá un número sin sentido.',gcc:`format '${s.raw}' expects argument of type 'int', but argument has type 'double'`};
+      else if(kind==='int'&&at==='string')m={msg:`<code>${esc(s.raw)}</code> es para enteros, pero ${nm} es un texto.`,hint:'Para textos usa <code>%s</code>.',gcc:`format '${s.raw}' expects argument of type 'int', but argument has type 'char *'`};
+      else if(kind==='double'&&(at==='int'||at==='char'))m={msg:`<code>${esc(s.raw)}</code> es para decimales, pero ${nm} es un ${at}.`,hint:`Usa <code>${HOLE[at]}</code>. O conviértelo: <code>(double)${a.k==='var'?esc(a.name):'x'}</code>.`,gcc:`format '${s.raw}' expects argument of type 'double', but argument has type 'int'`};
+      else if(kind==='double'&&at==='string')m={msg:`<code>${esc(s.raw)}</code> es para decimales, pero ${nm} es un texto.`,hint:'Para textos usa <code>%s</code>.',gcc:`format '${s.raw}' expects argument of type 'double', but argument has type 'char *'`};
+      else if(kind==='string'&&at!=='string')m={msg:`<code>%s</code> es para textos, pero ${nm} es un ${at}.`,hint:`Usa <code>${HOLE[at]}</code>. Con <code>%s</code> el programa puede colgarse.`,gcc:`format '%s' expects argument of type 'char *', but argument has type '${at}'`};
+      if(m){m.line=t.line;warnings.push(m)}
+      else if(s.conv==='d'&&at==='char')notes.push({line:t.line,msg:`Con <code>%d</code>, un char se muestra como número: su código ASCII.`,hint:"Por ejemplo, 'B' es 66. Para ver la letra usa <code>%c</code>."});
+      else if(s.conv==='c'&&at==='int')notes.push({line:t.line,msg:'Con <code>%c</code>, un int se muestra como el carácter con ese código ASCII.',hint:'65 → A, 66 → B, 97 → a…'});
+    });
+    return {k:'printf',fmt:f.val,specs,args,line:t.line}}
+
+  function statement(){
+    const t=peek();
+    if(is(';')){next();return []}
+    if(is('{'))throw new CErr(t.line,'Un bloque <code>{ }</code> dentro de main: lo usarás con if y bucles (lecciones 3 y 4).','Por ahora escribe las instrucciones directamente dentro de main.');
+    if(is('++')||is('--')){const op=next().val;const v=peek();if(v.type!=='id'||!decl.has(v.val))throw v.type==='id'?undeclared(v):new CErr(v.line,`Detrás de ${op} tiene que ir una variable.`,'');next();semi();return [{k:'inc',name:v.val,op,line:t.line}]}
+    if(t.type!=='id'){
+      if(t.type==='str')throw new CErr(t.line,'Hay un texto suelto. Para mostrarlo en pantalla usa printf.',`<code>printf("${esc(t.val.replace(/\n/g,'\\n'))}");</code>`);
+      throw new CErr(t.line,`No entiendo una instrucción que empieza por ${show(t)}.`,'Cada instrucción empieza por un tipo (<code>int x = 5;</code>), una variable (<code>x = 7;</code>), <code>printf(...)</code> o <code>return</code>.',`expected statement before '${t.val}'`)}
+    const v=t.val,low=v.toLowerCase();
+    if(TYPES.includes(v))return declaration();
+    if(['string','String','str','bool','boolean','integer','Integer','var','let','Double','Float'].includes(v)&&peek(1).type==='id'&&!TYPES.includes(low))
+      throw new CErr(t.line,`En C no existe el tipo <code>${esc(v)}</code>.`,v.toLowerCase().startsWith('str')?'Un texto en C es un array de char: <code>char nombre[] = "Saul";</code>':'Los tipos de la lección 1 son: <code>int</code>, <code>double</code>, <code>float</code> y <code>char</code>.',`unknown type name '${v}'`);
+    if(v!==low&&(TYPES.includes(low)||['printf','return'].includes(low)))throw new CErr(t.line,`<code>${esc(v)}</code> va en minúscula: <code>${low}</code>.`,'C distingue mayúsculas y minúsculas: para C, <code>Int</code> y <code>int</code> son palabras distintas.',`'${v}' undeclared`);
+    if(['print','println','cout','echo','console','System','Console','write','writeln'].includes(v))throw new CErr(t.line,`<code>${esc(v)}</code> no existe en C.`,'Para mostrar texto se usa <code>printf("...");</code>',`implicit declaration of function '${v}'`);
+    if(v==='printf')return [printfStmt()];
+    if(v==='return'){next();let e=null;if(!is(';')){e=expr();if(typeOf(e)==='string')throw new CErr(t.line,'main tiene que devolver un número, no un texto.','<code>return 0;</code>')}semi();return [{k:'return',e,line:t.line}]}
+    if(v==='main')throw new CErr(t.line,'Ya estás dentro de main: no hace falta volver a escribirlo.','');
+    if(LATER[v]!==undefined)throw new CErr(t.line,`<code>${esc(v)}</code> es de la lección ${LATER[v]}. El Taller ahora cubre la lección 1.`,'Cuando lleguemos, lo desbloqueamos.');
+    if(is('++',1)||is('--',1)){if(!decl.has(v))throw undeclared(t);if(decl.get(v).arr)throw new CErr(t.line,'A un texto no se le puede sumar 1.','');next();const op=next().val;semi();return [{k:'inc',name:v,op,line:t.line}]}
+    const aops=['=','+=','-=','*=','/=','%='];
+    if(aops.some(o=>is(o,1))){
+      if(!decl.has(v))throw undeclared(t);
+      const d=decl.get(v);next();const op=next().val;
+      if(d.arr)throw new CErr(t.line,'Un texto (char[]) no se puede cambiar entero con <code>=</code>.','Para copiar textos se usa strcpy (lección 7). Por ahora dale el valor al declararlo.','assignment to expression with array type');
+      const e=expr();checkStringInto(d.type,v,e,t.line);
+      if(op==='%='&&(d.type==='double'||d.type==='float'||typeOf(e)==='double'))throw new CErr(t.line,'El resto <code>%</code> solo funciona con enteros.','');
+      if(op==='=')divNote(d.type,v,e,t.line);
+      if(op!=='=')opsUsed.add(op[0]);
+      semi();return [{k:'assign',name:v,op,e,line:t.line}]}
+    if(is('==',1))throw new CErr(t.line,'Para guardar un valor se usa un solo <code>=</code>.','<code>==</code> es para comparar, y lo verás con if (lección 3).');
+    if(is('(',1))throw new CErr(t.line,`<code>${esc(v)}</code> no es una función que conozca.`,decl.has(v)?`<code>${esc(v)}</code> es una variable, no una función.`:'¿Está bien escrito? Las funciones propias las verás en la lección 5.',`implicit declaration of function '${v}'`);
+    if(peek(1).type==='id'&&!decl.has(v))throw new CErr(t.line,`<code>${esc(v)}</code> no es un tipo de C.`,'Los tipos de la lección 1 son: <code>int</code>, <code>double</code>, <code>float</code> y <code>char</code>.',`unknown type name '${v}'`);
+    if(!decl.has(v))throw undeclared(t);
+    if(peek(1).type==='num'||peek(1).type==='str'||peek(1).type==='chr')throw new CErr(t.line,`Falta el <code>=</code> entre <code>${esc(v)}</code> y su valor.`,`<code>${esc(v)} = ${esc(peek(1).val)};</code>`);
+    throw new CErr(t.line,`Esta línea empieza por <code>${esc(v)}</code> pero no hace nada con ella.`,`Para cambiar su valor: <code>${esc(v)} = ...;</code>`)}
+
+  // cabecera de main
+  let t=peek();
+  if(t.type==='eof')throw new CErr(1,'El programa está vacío.','Empieza con el esqueleto: <code>#include &lt;stdio.h&gt;</code> y <code>int main(void) { ... }</code>');
+  if(t.type==='id'&&t.val!=='int'&&t.val.toLowerCase()==='int')throw new CErr(t.line,`<code>${esc(t.val)}</code> va en minúscula: <code>int</code>.`,'C distingue mayúsculas y minúsculas.');
+  if(is('void')&&is('main',1)){next();warnings.push({line:t.line,msg:'main debería devolver <code>int</code>, no <code>void</code>.',hint:'Escribe <code>int main(void)</code>. Muchos profesores lo penalizan.',gcc:"return type of 'main' is not 'int'"})}
+  else if(is('main'))warnings.push({line:t.line,msg:'Falta el tipo delante de main.',hint:'Escribe <code>int main(void)</code>.',gcc:"return type defaults to 'int'"});
+  else expect('int','El programa tiene que empezar por <code>int main(void) {</code> (después de los #include).',t.type==='id'&&TYPES.concat(['printf']).includes(t.val)?'Todo tu código va <b>dentro</b> de main. Escribe primero <code>int main(void) {</code>.':'');
+  if(peek().type==='id'&&peek().val!=='main'&&peek().val.toLowerCase()==='main')throw new CErr(peek().line,'<code>main</code> va en minúscula.','');
+  expect('main','Después de <code>int</code> tiene que venir <code>main</code>.');
+  expect('(','Después de main van paréntesis: <code>main(void)</code> o <code>main()</code>.');
+  if(is('void'))next();
+  expect(')','Falta cerrar el paréntesis: <code>main(void)</code>');
+  const ob=peek();
+  if(is('[')||is('('))throw new CErr(ob.line,`Has abierto main con <code>${ob.val}</code>, pero los bloques se abren con llave <code>{</code>.`,'Llaves en teclado español: <code>{</code> = AltGr + la tecla a la derecha de la P · <code>}</code> = AltGr + la tecla a la derecha de la Ñ. Cambia también el cierre del final.',`expected '{' before '${ob.val}' token`);
+  if(is(';'))throw new CErr(ob.line,'Sobra el <code>;</code> después de <code>main(void)</code>.','La cabecera de main no lleva punto y coma: va seguida directamente de <code>{</code>.',"expected identifier or '(' before '{' token");
+  expect('{','Después de <code>int main(void)</code> tiene que ir una llave <code>{</code>.','','expected \'{\'');
+  const body=[];
+  while(!is('}')){
+    const c=peek();
+    if(c.type==='eof')throw new CErr(c.line,`Falta la llave <code>}</code> que cierra main (la abriste en la línea ${ob.line}).`,'Cada <code>{</code> necesita su <code>}</code>.','expected declaration or statement at end of input');
+    if(is(']')||is(')'))throw new CErr(c.line,`Aquí hay un <code>${c.val}</code> que no cierra nada.`,'Si es el final de main, tiene que ser una llave <code>}</code>.',`expected statement before '${c.val}' token`);
+    body.push(...statement())}
+  next();
+  if(peek().type!=='eof')throw new CErr(peek().line,'Hay código después de la llave <code>}</code> que cierra main.','Todo tu código tiene que ir <b>dentro</b> de las llaves de main.');
+  return {body,warnings,notes,decl,opsUsed,fmts,nums}}
+
+/* ---------- ejecución ---------- */
+class RErr extends Error{constructor(line,msg,hint){super(msg);this.line=line;this.hint=hint}}
+const GARB=[32767,21845,-858993460,4200928,1954047348,-1283467264,6422300];
+const garbage=()=>GARB[Math.floor(Math.random()*GARB.length)];
+function fmtNum(v){return Number.isInteger(v)?String(v):String(+v.toPrecision(10))}
+function fmtDouble(v,s){const prec=s.prec==null?6:s.prec;
+  if(!isFinite(v))return isNaN(v)?'nan':(v<0?'-inf':'inf');
+  const c=s.conv;
+  if(c==='f'||c==='F')return v.toFixed(prec);
+  if(c==='e'||c==='E'){let r=v.toExponential(prec).replace(/e([+-])(\d)$/,'e$10$2');return c==='E'?r.toUpperCase():r}
+  let r=String(Number(v.toPrecision(prec||1)));return c==='G'?r.toUpperCase():r}
+function bitsOf(v){const dv=new DataView(new ArrayBuffer(8));dv.setFloat64(0,v);return dv.getInt32(4)}
+function run(prog){
+  const out=[];const env=new Map();const order=[];const rwarn=[];const rnotes=[];let exit=0;let rerr=null;const warned=new Set();
+  const noteOnce=(k,o,list)=>{if(warned.has(k))return;warned.add(k);(list||rnotes).push(o)};
+  function toChar(v){v=Math.trunc(v);return ((v+128)%256+256)%256-128}
+  function store(d,val,line){
+    if(d.type==='int'){let v=val.v;if(val.t==='double'){const tv=Math.trunc(v);if(tv!==v)noteOnce('trunc'+line,{line,msg:`Guardas ${fmtNum(v)} en el int <code>${esc(d.name)}</code>: se pierde la parte decimal y se queda en ${tv}.`,hint:'Un int no redondea: corta. Si necesitas decimales, usa double.'});v=tv}d.val=v|0}
+    else if(d.type==='char')d.val=toChar(val.v);
+    else if(d.type==='float')d.val=Math.fround(val.v);
+    else d.val=+val.v;
+    d.init=true}
+  function get(name,line){const d=env.get(name);
+    if(d.arr){let s='';for(let i=0;i<d.val.length;i++){if(d.val[i]===0)return {t:'string',v:s};s+=String.fromCharCode(d.val[i]&255)}return {t:'string',v:s+'╠╠¤'}}
+    if(!d.init)noteOnce('uninit'+name,{line,msg:`Usas <code>${esc(name)}</code> sin haberle dado ningún valor. Contiene <b>basura</b>: esta vez valía ${d.type==='char'?d.val:fmtNum(d.val)}.`,hint:`Dale un valor al declararla: <code>${d.type} ${esc(name)} = 0;</code> Si ejecutas otra vez, puede salir otro número distinto.`},rwarn);
+    return {t:d.type==='float'?'double':d.type,v:d.val}}
+  function arith(op,a,b,line){
+    if(a.t==='double'||b.t==='double'){let v;switch(op){case '+':v=a.v+b.v;break;case '-':v=a.v-b.v;break;case '*':v=a.v*b.v;break;case '/':v=a.v/b.v;break}return {t:'double',v}}
+    const x=a.v|0,y=b.v|0;let v;
+    switch(op){case '+':v=(x+y)|0;break;case '-':v=(x-y)|0;break;case '*':v=Math.imul(x,y);break;
+      case '/':if(y===0)throw new RErr(line,'División entre cero con enteros.','El programa se detiene de golpe. En tu PC verías "Floating point exception" o se cerraría sin más.');v=Math.trunc(x/y)|0;break;
+      case '%':if(y===0)throw new RErr(line,'Resto de una división entre cero.','El programa se detiene de golpe.');v=(x%y)|0;break}
+    return {t:'int',v}}
+  function ev(e){switch(e.k){
+    case 'num':return {t:e.t,v:e.v};
+    case 'chr':return {t:'char',v:e.v};
+    case 'str':return {t:'string',v:e.v};
+    case 'var':return get(e.name,e.line);
+    case 'neg':{const a=ev(e.a);return a.t==='double'?{t:'double',v:-a.v}:{t:'int',v:(-a.v)|0}}
+    case 'cast':{const a=ev(e.a);if(e.t==='int')return {t:'int',v:Math.trunc(a.v)|0};if(e.t==='char')return {t:'char',v:toChar(a.v)};return {t:'double',v:e.t==='float'?Math.fround(a.v):a.v}}
+    case 'bin':return arith(e.op,ev(e.a),ev(e.b),e.line)}}
+  function doPrintf(st){
+    const vals=st.args.map(ev);let res='',last=0,ai=0;
+    for(const s of st.specs){res+=st.fmt.slice(last,s.index);last=s.index+s.raw.length;
+      if(s.conv==='%'){res+='%';continue}
+      if(!s.conv){res+=s.raw;continue}
+      const a=vals[ai++];const kind=specKind(s.conv);let body;
+      if(kind==='string'){if(!a||a.t!=='string'){out.push(res);throw new RErr(st.line,'Violación de segmento (segmentation fault).','<code>%s</code> intentó leer un texto donde no lo había, y el sistema operativo ha cerrado el programa. Revisa el hueco.')}
+        body=s.prec!=null?a.v.slice(0,s.prec):a.v}
+      else if(!a){body=kind==='double'?(0).toFixed(s.prec==null?6:s.prec):String(garbage())}
+      else if(s.conv==='c'){body=a.t==='double'?'?':String.fromCharCode(((Math.trunc(a.v)%256)+256)%256)}
+      else if(kind==='int'){const iv=a.t==='double'?bitsOf(a.v):a.t==='string'?4210692:a.v;
+        body=s.conv==='x'?(iv>>>0).toString(16):s.conv==='X'?(iv>>>0).toString(16).toUpperCase():s.conv==='u'?String(iv>>>0):s.conv==='o'?(iv>>>0).toString(8):String(iv);
+        if(s.flags.includes('+')&&iv>=0)body='+'+body}
+      else if(kind==='double'){body=fmtDouble(a.t==='double'?a.v:0,s);if(s.flags.includes('+')&&!body.startsWith('-'))body='+'+body}
+      else body='0x7ffc3a10';
+      if(s.width&&body.length<s.width){const pad=s.width-body.length;
+        if(s.flags.includes('-'))body+=' '.repeat(pad);
+        else if(s.flags.includes('0')&&kind!=='string'&&s.conv!=='c'){const sg=/^[-+]/.test(body)?body[0]:'';body=sg+'0'.repeat(pad)+body.slice(sg.length)}
+        else body=' '.repeat(pad)+body}
+      res+=body}
+    res+=st.fmt.slice(last);out.push(res)}
+  try{
+    for(const st of prog.body){
+      if(st.k==='decl'){
+        const d={name:st.name,type:st.type,arr:st.arr,size:st.size,init:false,line:st.line};
+        if(st.arr){d.val=Array.from({length:st.size},()=>[204,63,17,250,0][Math.floor(Math.random()*4)]);
+          if(st.init){for(let i=0;i<st.size;i++)d.val[i]=i<st.init.v.length?st.init.v.charCodeAt(i)&255:0;d.init=true}}
+        else{d.val=(st.type==='double'||st.type==='float')?6.9531e-310:(st.type==='char'?toChar(garbage()):garbage());
+          if(st.init)store(d,ev(st.init),st.line)}
+        env.set(st.name,d);order.push(d)}
+      else if(st.k==='assign'){const d=env.get(st.name);let val=ev(st.e);if(st.op!=='=')val=arith(st.op[0],get(st.name,st.line),val,st.line);store(d,val,st.line)}
+      else if(st.k==='inc'){const d=env.get(st.name);const cur=get(st.name,st.line);store(d,{t:cur.t,v:cur.v+(st.op==='++'?1:-1)},st.line)}
+      else if(st.k==='printf')doPrintf(st);
+      else if(st.k==='return'){const v=st.e?ev(st.e):{v:0};exit=Math.trunc(v.v);break}
+    }
+  }catch(e){if(e instanceof RErr)rerr={line:e.line,msg:e.message,hint:e.hint};else rerr={line:0,msg:'Error interno del Laboratorio: '+esc(e.message),hint:'No es culpa tuya. Prueba a simplificar el código.'}}
+  return {output:out.join(''),vars:order,exit,rerr,rwarn,rnotes}}
+
+function compileAndRun(src){
+  const r={ok:false,errors:[],warnings:[],notes:[],output:'',vars:[],exit:0,rerr:null,prog:null};
+  try{r.prog=compile(src)}catch(e){if(e instanceof CErr){r.errors.push({line:e.line,msg:e.message,hint:e.hint,gcc:e.gcc});return r}
+    r.errors.push({line:1,msg:'Error interno del Laboratorio: '+esc(e.message),hint:'No es culpa tuya. Prueba a simplificar el código.'});return r}
+  r.ok=true;r.warnings=r.prog.warnings.slice();r.notes=r.prog.notes.slice();
+  const x=run(r.prog);r.output=x.output;r.vars=x.vars;r.exit=x.exit;r.rerr=x.rerr;r.warnings.push(...x.rwarn);r.notes.push(...x.rnotes);
+  return r}
+
+/* ================= RESALTADO ================= */
+const HL_TYPES=new Set(['int','double','float','char','void','long','short','unsigned','signed','const']);
+const HL_KW=new Set(['return','if','else','for','while','do','switch','case','break','continue','struct','typedef','sizeof']);
+function strHL(s){return s.split(/(\\.|%[-+ 0#]*\d*(?:\.\d*)?(?:hh|h|ll|l|L)?[diouxXfFeEgGcsp%])/).map((part,i)=>i%2?`<span class="c-fmt">${esc(part)}</span>`:part?`<span class="c-str">${esc(part)}</span>`:'').join('')}
+function highlight(src){
+  let inC=false;
+  return src.split('\n').map(line=>{
+    let h='',i=0;const n=line.length;
+    if(!inC&&/^\s*#/.test(line))return `<span class="c-pre">${esc(line)}</span>`;
+    while(i<n){
+      if(inC){const j=line.indexOf('*/',i);if(j<0){h+=`<span class="c-com">${esc(line.slice(i))}</span>`;i=n}else{h+=`<span class="c-com">${esc(line.slice(i,j+2))}</span>`;i=j+2;inC=false}continue}
+      const ch=line[i];
+      if(ch==='/'&&line[i+1]==='/'){h+=`<span class="c-com">${esc(line.slice(i))}</span>`;break}
+      if(ch==='/'&&line[i+1]==='*'){const j=line.indexOf('*/',i+2);if(j<0){h+=`<span class="c-com">${esc(line.slice(i))}</span>`;inC=true;i=n}else{h+=`<span class="c-com">${esc(line.slice(i,j+2))}</span>`;i=j+2}continue}
+      if(ch==='"'){let j=i+1;while(j<n&&line[j]!=='"'){if(line[j]==='\\')j++;j++}j=Math.min(j+1,n);h+=strHL(line.slice(i,j));i=j;continue}
+      if(ch==="'"){let j=i+1;while(j<n&&line[j]!=="'"){if(line[j]==='\\')j++;j++}j=Math.min(j+1,n);h+=`<span class="c-str">${esc(line.slice(i,j))}</span>`;i=j;continue}
+      if(/[A-Za-z_]/.test(ch)){let j=i;while(j<n&&/\w/.test(line[j]))j++;const w=line.slice(i,j);
+        const cls=HL_TYPES.has(w)?'c-type':HL_KW.has(w)?'c-kw':(w==='printf'||w==='scanf'||w==='main')?'c-fn':'c-var';h+=`<span class="${cls}">${esc(w)}</span>`;i=j;continue}
+      if(/[0-9]/.test(ch)){let j=i;while(j<n&&/[0-9.a-zA-Z]/.test(line[j]))j++;h+=`<span class="c-num">${esc(line.slice(i,j))}</span>`;i=j;continue}
+      if('{}[]()'.includes(ch)){h+=`<span class="c-br">${esc(ch)}</span>`;i++;continue}
+      h+=esc(ch);i++}
+    return h}).join('\n')+'\n'}
+
+/* ================= EDITOR ================= */
+const LH=24,PT=14;
+// [etiqueta, texto que se inserta, posiciones que retrocede el cursor]
+const KBAR=[['⇥','    ',0],['{','{',0],['}','}',0],[';',';',0],['( )','()',1],['" "','""',1],["' '","''",1],['%d','%d',0],['%f','%f',0],['%c','%c',0],['%s','%s',0],['\\n','\\n',0],[',',', ',0],['=',' = ',0],['[ ]','[]',1],['+','+',0],['-','-',0],['*','*',0],['/','/',0],['%','%',0],['#','#',0],['<','<',0],['>','>',0],['printf','printf("\\n");',5],['return 0;','return 0;',0]];
+function makeEditor(root,opts){
+  root.innerHTML=`<div class="kbar" role="toolbar" aria-label="Símbolos de C">${KBAR.map((k,i)=>`<button type="button" data-k="${i}" class="${k[0].length>3?'wide':''}" aria-label="Insertar ${esc(k[1])}">${esc(k[0])}</button>`).join('')}</div><div class="ed"><div class="ed-gutter" aria-hidden="true"></div><div class="ed-main"><div class="ed-band" hidden></div><pre class="ed-hl" aria-hidden="true"></pre><textarea class="ed-ta" id="${opts.id}" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" aria-label="Editor de código C"></textarea></div></div>`;
+  const ta=root.querySelector('textarea'),hl=root.querySelector('.ed-hl'),gut=root.querySelector('.ed-gutter'),band=root.querySelector('.ed-band');
+  let errLine=null;
+  function place(){if(errLine==null){band.hidden=true;return}band.hidden=false;band.style.top=(PT+(errLine-1)*LH-ta.scrollTop)+'px'}
+  function sync(){hl.scrollTop=ta.scrollTop;hl.scrollLeft=ta.scrollLeft;gut.scrollTop=ta.scrollTop;place()}
+  function refresh(){hl.innerHTML=highlight(ta.value);const n=ta.value.split('\n').length;
+    let g='';for(let i=1;i<=n+1;i++)g+=`<div class="${i===errLine?'bad':''}">${i<=n?i:'&nbsp;'}</div>`;gut.innerHTML=g+'<div style="height:40px"></div>';sync()}
+  function ins(text){ta.focus();if(!document.execCommand||!document.execCommand('insertText',false,text)){ta.setRangeText(text,ta.selectionStart,ta.selectionEnd,'end');onInput()}}
+  function onInput(){errLine=null;refresh();opts.onChange&&opts.onChange(ta.value)}
+  ta.addEventListener('input',onInput);
+  ta.addEventListener('scroll',sync);
+  root.querySelectorAll('.kbar button').forEach(b=>{
+    b.addEventListener('pointerdown',e=>e.preventDefault()); // no cierra el teclado
+    b.addEventListener('click',()=>{const k=KBAR[+b.dataset.k];ins(k[1]);if(k[2]){const p=ta.selectionStart-k[2];ta.setSelectionRange(p,p)}})});
+  ta.addEventListener('keydown',e=>{
+    if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();opts.onRun&&opts.onRun();return}
+    if(e.key==='Tab'&&!e.shiftKey){e.preventDefault();ins('    ');return}
+    if(e.key==='Enter'&&!e.shiftKey&&!e.altKey){const s=ta.selectionStart;const before=ta.value.slice(0,s);const ls=before.lastIndexOf('\n')+1;const cur=before.slice(ls);
+      let ind=(cur.match(/^\s*/)||[''])[0];if(/\{\s*$/.test(cur))ind+='    ';e.preventDefault();ins('\n'+ind);return}
+    if(e.key==='}'){const s=ta.selectionStart;const before=ta.value.slice(0,s);const ls=before.lastIndexOf('\n')+1;const cur=before.slice(ls);
+      if(/^ {4,}$/.test(cur)&&ta.selectionEnd===s){e.preventDefault();ta.setSelectionRange(s-4,s);ins('}')}}
+  });
+  return {
+    get:()=>ta.value,
+    set(v){ta.value=v;errLine=null;refresh()},
+    mark(n){errLine=n||null;refresh()},
+    focusLine(n){const lines=ta.value.split('\n');let pos=0;for(let i=0;i<n-1&&i<lines.length;i++)pos+=lines[i].length+1;ta.focus();ta.setSelectionRange(pos,pos+(lines[n-1]||'').length);ta.scrollTop=Math.max(0,(n-4)*LH);sync()},
+    refresh}}
+
+/* ================= RESULTADOS ================= */
+const showNL=(s,on)=>on?esc(s).replace(/\n/g,'<span class="nl">↵</span>\n'):esc(s);
+let showNewlines=store.get('nl',false);
+function renderMsgs(res){
+  const all=[...res.errors.map(m=>({...m,kind:'error',k:'Error'})),...(res.rerr?[{...res.rerr,kind:'error',k:'Se ha colgado al ejecutar'}]:[]),...res.warnings.map(m=>({...m,kind:'warn',k:'Aviso'})),...res.notes.map(m=>({...m,kind:'note',k:'Para que lo sepas'}))];
+  if(!all.length)return '';
+  return `<div class="msgs">${all.map(m=>`<div class="msg ${m.kind}"><button class="ln" data-line="${m.line}" title="Ir a la línea">Línea ${m.line}</button><div><div class="k">${m.k}</div><p class="m">${m.msg}</p>${m.hint?`<p class="h"><b>Cómo arreglarlo:</b> ${m.hint}</p>`:''}${m.gcc?`<p class="g">GCC te diría: <code>${esc(m.gcc)}</code></p>`:''}</div></div>`).join('')}</div>`}
+function renderResult(el,res,ed){
+  let st;
+  if(!res.ok)st=`<div class="status bad"><span class="dot"></span>No compila. Arregla este error y vuelve a probar: a veces un solo fallo provoca muchos más.</div>`;
+  else if(res.rerr)st=`<div class="status bad"><span class="dot"></span>Compila, pero el programa se ha colgado al ejecutarse.</div>`;
+  else if(res.warnings.length)st=`<div class="status warn"><span class="dot"></span>Compila con ${res.warnings.length} aviso${res.warnings.length>1?'s':''}. Funciona, pero algo huele mal.</div>`;
+  else st=`<div class="status ok"><span class="dot"></span>Compilado sin errores ni avisos.</div>`;
+  const cons=res.ok?`<div class="console"><div class="bar"><span>Salida del programa</span><label><input type="checkbox" class="nlToggle" ${showNewlines?'checked':''}> mostrar saltos de línea ↵</label></div><pre>${showNL(res.output,showNewlines)||'<span class="nl">(no ha escrito nada)</span>'}${res.rerr?`\n<span class="crash">✖ ${res.rerr.msg.replace(/<[^>]+>/g,'')}</span>`:''}</pre>${res.rerr?'':`<div class="exit">Proceso terminado con código ${res.exit}${res.exit===0?' (todo bien)':''}</div>`}</div>`:'';
+  el.innerHTML=`<div class="res">${st}${renderMsgs(res)}${cons}</div>`;
+  el.querySelectorAll('.ln').forEach(b=>b.addEventListener('click',()=>ed&&ed.focusLine(+b.dataset.line)));
+  const tg=el.querySelector('.nlToggle');if(tg)tg.addEventListener('change',()=>{showNewlines=tg.checked;store.set('nl',showNewlines);renderResult(el,res,ed)});
+  if(ed){const first=res.errors[0]||res.rerr;ed.mark(first?first.line:null)}}
+function renderMem(el,res){
+  const head=`<h3>Tu memoria</h3><p class="muted" style="font-size:13.5px;margin-bottom:8px">Cada variable es una caja. Cada casilla de la caja es <b>1 byte</b>.</p>`;
+  if(!res||!res.ok||!res.vars.length){el.innerHTML=head+`<p class="muted">${res&&res.ok?'Este programa no declara variables.':'Aquí aparecerán tus variables cuando el programa compile.'}</p>`;return}
+  let addr=0x7ffc3a10;
+  const rows=res.vars.map(d=>{
+    const bytes=d.arr?d.size:{int:4,double:8,float:4,char:1}[d.type];const a='0x'+addr.toString(16);addr+=bytes;
+    let vis;
+    if(d.arr){vis=`<div class="cells">${d.val.map((c,i)=>{const z=c===0;const ok=d.init;return `<div class="cell"><div class="v ${z?'z':ok?'':'g'}">${z?'\\0':ok?esc(String.fromCharCode(c)):'?'}</div><div class="i">[${i}]</div></div>`}).join('')}</div>`}
+    else{let v;if(!d.init)v=`basura: ${d.type==='char'?d.val:fmtNum(d.val)}`;else if(d.type==='char')v=`'${esc(d.val>=32&&d.val<127?String.fromCharCode(d.val):'·')}' = ${d.val}`;else v=esc(fmtNum(d.val));
+      vis=`<div class="box ${d.init?'':'garbage'}" style="width:${Math.max(bytes*26,34)}px;min-width:fit-content">${v}</div>`}
+    return `<div class="var"><div><div class="nm">${esc(d.name)}</div><div class="meta">${d.type}${d.arr?'['+d.size+']':''} · ${bytes} byte${bytes>1?'s':''}</div><div class="meta">${a}</div></div>${vis}</div>`}).join('');
+  el.innerHTML=head+rows+`<p class="foot">El número <code>0x7ffc…</code> es la <b>dirección</b>: el sitio exacto de la memoria donde vive cada variable. Quédate con esta idea, porque en la lección 8 un <b>puntero</b> será justo una variable que guarda una de estas direcciones.</p>`}
+
+/* ================= RAYOS X ================= */
+const PROGS=[
+ {id:'hola',name:'Hola, mundo',idea:'El programa mínimo que funciona. Cada una de estas piezas es obligatoria.',src:String.raw`#include <stdio.h>
+
+int main(void) {
+    printf("Hola, mundo\n");
+    return 0;
+}`},
+ {id:'vars',name:'Variables',idea:'Cuatro tipos de caja distintos, cómo se muestran con printf y cómo cambia un valor.',src:String.raw`#include <stdio.h>
+
+int main(void) {
+    char nombre[] = "Saul";
+    int edad = 18;
+    double nota = 7.25;
+    char grupo = 'B';
+
+    printf("Me llamo %s\n", nombre);
+    printf("Tengo %d años\n", edad);
+    printf("Nota: %.2f, grupo %c\n", nota, grupo);
+
+    edad = edad + 1;
+    printf("El año que viene: %d\n", edad);
+    return 0;
+}`},
+ {id:'div',name:'La trampa de la división',idea:'El ejercicio 1.4. Predice las 3 líneas antes de pulsar Ejecutar.',src:String.raw`#include <stdio.h>
+
+int main(void) {
+    int a = 7;
+    int b = 2;
+    printf("%d\n", a / b);
+    printf("%d\n", a % b);
+    double c = 7 / 2;
+    printf("%.1f\n", c);
+    return 0;
+}`}];
+
+const EX={
+ hash:{tag:'Preprocesador',title:'#',name:'almohadilla',que:'Marca una orden para el <b>preprocesador</b>, un programa que repasa tu código <i>antes</i> de compilarlo.',porque:'Todo lo que empieza por # se resuelve primero, antes de traducir nada. Por eso estas líneas <b>no llevan ;</b>: no son instrucciones de C, son preparativos.',analogia:'Reunir los ingredientes antes de cocinar: todavía no cocinas, solo preparas lo que vas a necesitar.',ref:'Más adelante usarás <code>#define</code> para crear constantes.'},
+ include:{tag:'Preprocesador',title:'include',name:'incluir',que:'Copia el contenido de otro archivo y lo pega justo en este punto.',porque:'printf no lo has escrito tú: ya está hecho y guardado en una librería. <code>include</code> trae su "ficha técnica" para que el compilador sepa cómo se usa.',analogia:'Como grapar la hoja de fórmulas a tu examen: no las inventas, las traes.',ojo:'En minúscula y pegado al #: <code>#include</code>.'},
+ angle:{tag:'Símbolo',title:'< >',name:'ángulos',que:'Rodean el nombre del archivo que quieres incluir.',porque:'Con <code>&lt; &gt;</code> le dices "búscalo en las librerías del sistema". Con comillas, <code>"mio.h"</code>, lo buscaría en tu carpeta: lo usarás cuando hagas programas de varios archivos.',ojo:'Aquí no significan "menor que" ni "mayor que". En C, el mismo símbolo puede significar cosas distintas según dónde esté.'},
+ header:{tag:'Librería',title:'stdio.h',name:'',que:'<b>std</b> = standard · <b>io</b> = input/output (entrada/salida) · <b>.h</b> = header (cabecera).',porque:'Contiene printf (mostrar en pantalla) y scanf (leer del teclado). Sin esta línea, C no sabe qué es printf y da error.',analogia:'La caja de herramientas para hablar con la pantalla y el teclado.',ref:'Otras librerías que usarás: <code>math.h</code> (raíces, potencias), <code>string.h</code> (textos, lección 7), <code>stdlib.h</code> (memoria, lección 10).',ojo:'Es <b>stdio</b>, no "studio". Es un error muy común.'},
+ int_main:{tag:'Tipo de retorno',title:'int',name:'delante de main',que:'Indica qué tipo de dato <b>devuelve</b> main cuando termina: un entero.',porque:'Al acabar, tu programa le entrega un número al sistema operativo: 0 significa "todo bien". Ese número es el del <code>return 0;</code> del final. El <code>int</code> de aquí y el <code>0</code> de allí van juntos.',analogia:'El parte que entrega un trabajador al salir: "terminado, código 0, sin incidencias".',ref:'Funciones que devuelven valores: lección 5.'},
+ main:{tag:'Función',title:'main',name:'la función principal',que:'Tu programa <b>empieza siempre aquí</b>.',porque:'El sistema operativo busca una función que se llame exactamente <code>main</code> para arrancar el programa. Tiene que haber una, y solo una.',analogia:'La puerta principal de un edificio: puede haber muchas habitaciones (funciones), pero se entra por aquí.',ojo:'En minúscula: <code>Main</code> o <code>MAIN</code> no valen.'},
+ paren_main:{tag:'Símbolo',title:'(',name:'paréntesis de función',que:'Los paréntesis pegados a un nombre indican que ese nombre es una <b>función</b>. Dentro van los datos que recibe.',porque:'<code>main(void)</code> quiere decir "main no recibe nada". <code>printf("...")</code> quiere decir "printf recibe este texto".',analogia:'La ranura de una máquina: por ahí le das lo que necesita para trabajar.',ref:'Lección 5: tus propias funciones con parámetros.',ojo:'Cada símbolo tiene un único papel: <code>( )</code> funciones y operaciones · <code>[ ]</code> arrays · <code>{ }</code> bloques. No se pueden intercambiar.'},
+ close_paren_main:{tag:'Símbolo',title:')',name:'cierre',que:'Cierra los paréntesis de main.',porque:'Justo después viene la llave <code>{</code>, sin <code>;</code> en medio: la cabecera de una función no es una instrucción.'},
+ void:{tag:'Palabra clave',title:'void',name:'vacío',que:'Significa "nada".',porque:'<code>main(void)</code> dice explícitamente que main no recibe ningún dato. En muchos apuntes verás <code>main()</code> a secas: en la práctica funciona igual.',ref:'Lección 5: funciones <code>void</code>, que no devuelven nada.'},
+ brace_open:{tag:'Símbolo',title:'{',name:'llave de apertura',que:'Abre un <b>bloque</b>. Aquí empiezan las instrucciones que pertenecen a main.',porque:'C necesita saber dónde empieza y dónde acaba el cuerpo de main. Todo lo que queda entre <code>{</code> y <code>}</code> pertenece a main.',analogia:'Las paredes de una habitación: lo que queda dentro pertenece a esa habitación.',ojo:'En teclado español: <b>AltGr + la tecla a la derecha de la P</b>. Si pones <code>[</code> en su lugar, todo lo que viene detrás se marca como error.'},
+ brace_close:{tag:'Símbolo',title:'}',name:'llave de cierre',que:'Cierra el bloque que abrió su <code>{</code>.',porque:'Cada <code>{</code> necesita su <code>}</code>. Si falta, el compilador llega al final del archivo buscando el cierre y da error.',ojo:'En teclado español: <b>AltGr + la tecla a la derecha de la Ñ</b>.'},
+ printf:{tag:'Función de stdio.h',title:'printf',name:'print formatted',que:'Escribe texto en la pantalla. El texto puede llevar <b>huecos</b> que se rellenan con valores.',porque:'Es la forma de ver resultados. La <b>f</b> es de <i>formatted</i> (con formato): puedes meter huecos como <code>%d</code> o <code>%f</code> dentro del texto.',analogia:'Una plantilla con huecos: "Tengo ___ años". Después de la coma le das lo que va en cada hueco.',ojo:'En minúscula, y necesita <code>#include &lt;stdio.h&gt;</code>.'},
+ paren_printf:{tag:'Símbolo',title:'(',name:'datos de printf',que:'Aquí empieza la lista de datos que recibe printf.',porque:'Primero va el texto entre comillas, con los huecos. Después, separados por comas, los valores que rellenan esos huecos.'},
+ close_paren_printf:{tag:'Símbolo',title:')',name:'cierre',que:'Cierra la lista de datos de printf.',porque:'Detrás va el <code>;</code> que termina la instrucción.'},
+ quote_open:{tag:'Símbolo',title:'"',name:'comillas dobles',que:'Aquí empieza un <b>texto</b> (en C se llama <i>string</i> o <i>cadena</i>).',porque:'Lo que va entre comillas dobles es texto literal: C no lo interpreta como código, lo usa tal cual.',ojo:"Comillas dobles <code>\"</code> = texto. Comillas simples <code>'</code> = un solo carácter. Son cosas distintas."},
+ quote_close:{tag:'Símbolo',title:'"',name:'fin del texto',que:'Cierra el texto.',porque:'Cada <code>"</code> de apertura necesita otra de cierre en la misma línea. Si falta, C cree que todo lo que sigue es texto.'},
+ str_text:{tag:'Texto',title:'texto literal',name:'',que:'Se imprime exactamente así, letra a letra, con sus espacios.',porque:'Dentro de las comillas puedes escribir lo que quieras, tildes incluidas. Solo hay dos caracteres especiales: la <code>\\</code> (secuencias de escape) y el <code>%</code> (huecos).'},
+ esc_n:{tag:'Secuencia de escape',title:'\\n',name:'salto de línea',que:'Dos caracteres que valen por uno: <b>n</b>ew line. Mueve el cursor a la línea siguiente.',porque:'La <code>\\</code> avisa de que el siguiente carácter es especial. Sin <code>\\n</code>, el siguiente printf seguiría escribiendo en la misma línea.',ref:'Otros: <code>\\t</code> tabulador · <code>\\\\</code> una barra · <code>\\"</code> unas comillas dentro de un texto.',ojo:'Es la barra invertida <code>\\</code> (AltGr + º), no la <code>/</code>.'},
+ esc_other:{tag:'Secuencia de escape',title:'\\',name:'carácter especial',que:'La barra invertida convierte el siguiente carácter en especial.',porque:'<code>\\t</code> tabulador · <code>\\\\</code> una barra · <code>\\"</code> comillas dentro de un texto.'},
+ fmt_d:{tag:'Hueco de printf',title:'%d',name:'hueco para int',que:'Aquí irá un <b>int</b>. La d es de <b>d</b>ecimal (número en base 10).',porque:'El <code>%</code> le avisa a printf de que aquí va un valor, y la letra le dice de qué tipo. printf rellena los huecos en orden con los valores que van detrás de la coma.',ojo:'<code>%d</code> con un double imprime basura. Cada tipo tiene su hueco: int <code>%d</code> · double <code>%f</code> · char <code>%c</code> · texto <code>%s</code>.'},
+ fmt_f:{tag:'Hueco de printf',title:'%f',name:'hueco para double',que:'Aquí irá un <b>double</b> o un float. Por defecto muestra 6 decimales: <code>7.250000</code>.',porque:'La f es de <b>f</b>loating point (coma flotante), que es como se guardan los decimales.',ojo:'Para elegir los decimales: <code>%.2f</code>.'},
+ fmt_prec:{tag:'Hueco de printf',title:'%.2f',name:'decimales fijos',que:'Un double con un número fijo de decimales. El número después del punto dice cuántos: <code>%.2f</code> → 2, <code>%.1f</code> → 1.',porque:'Redondea: 7.256 con <code>%.2f</code> se ve como 7.26. El valor guardado no cambia, solo cómo se muestra.'},
+ fmt_c:{tag:'Hueco de printf',title:'%c',name:'hueco para char',que:'Aquí irá un <b>c</b>arácter.',porque:"Si le pasas un char, muestra la letra. Con <code>%d</code>, el mismo char se vería como su número ASCII: 'B' → 66."},
+ fmt_s:{tag:'Hueco de printf',title:'%s',name:'hueco para texto',que:'Aquí irá un <b>s</b>tring (texto): un <code>char[]</code>.',porque:"printf va imprimiendo letra a letra hasta encontrar el <code>'\\0'</code> que marca el final del texto.",ojo:'Con <code>%s</code> y algo que no sea texto, el programa se cuelga.'},
+ fmt_pct:{tag:'Hueco de printf',title:'%%',name:'porcentaje literal',que:'Imprime un símbolo <code>%</code>.',porque:'Como <code>%</code> sirve para marcar huecos, para escribir el símbolo en sí hay que ponerlo doble.'},
+ fmt_other:{tag:'Hueco de printf',title:'%',name:'hueco',que:'Un hueco de printf.',porque:'La letra final dice el tipo: d int · f double · c char · s texto · x hexadecimal.'},
+ comma_arg:{tag:'Símbolo',title:',',name:'coma',que:'Separa los datos que le das a una función.',porque:'En printf va primero el texto con los huecos y después cada valor, separados por comas y en el mismo orden que los huecos.'},
+ comma_decl:{tag:'Símbolo',title:',',name:'coma',que:'Permite declarar varias variables del mismo tipo en la misma línea.',porque:'<code>int a = 1, b = 2;</code> es lo mismo que escribir dos líneas <code>int</code>.'},
+ semi:{tag:'Símbolo',title:';',name:'punto y coma',que:'Marca el <b>final de una instrucción</b>.',porque:'A C le dan igual los saltos de línea: podrías escribir todo el programa en una sola línea. El <code>;</code> es lo único que le dice dónde acaba cada orden.',analogia:'El punto al final de una frase.',ojo:'Si lo olvidas, el compilador suele quejarse en la línea <b>siguiente</b>, porque se da cuenta al leerla. No va detrás de <code>#include</code>, de <code>main(void)</code> ni de las llaves.'},
+ return:{tag:'Palabra clave',title:'return',name:'devolver',que:'Termina la función y entrega un valor.',porque:'En main, <code>return</code> termina el programa entero: lo que haya después ya no se ejecuta.',ref:'Lección 5: return en tus propias funciones.'},
+ ret0:{tag:'Valor',title:'0',name:'código de salida',que:'Significa "todo ha ido bien".',porque:'Es una convención: 0 = éxito, cualquier otro número = ha habido un error. Es el int que prometía el <code>int main</code>.'},
+ type_int:{tag:'Tipo',title:'int',name:'entero',que:'Crea una caja para <b>números enteros</b>: …, -1, 0, 1, 2, …',porque:'Antes de usar una variable hay que decir su tipo, para que C sepa cuánta memoria reservar y cómo leerla. Un int ocupa <b>4 bytes</b> y va de -2.147.483.648 a 2.147.483.647.',analogia:'Una caja con forma de número entero: ahí no caben textos ni decimales.',ojo:'Si guardas 7.9 en un int, se queda en 7: no redondea, corta.'},
+ type_double:{tag:'Tipo',title:'double',name:'decimal',que:'Crea una caja para <b>números con decimales</b>, con unas 15 cifras de precisión.',porque:'Se llama "double" porque tiene el doble de precisión que <code>float</code>. Ocupa <b>8 bytes</b>. Úsalo por defecto para decimales.',ojo:'Los decimales se escriben con <b>punto</b>: <code>7.25</code>, nunca <code>7,25</code>. En printf, <code>%f</code>; en scanf, <code>%lf</code>.'},
+ type_float:{tag:'Tipo',title:'float',name:'decimal simple',que:'Decimales con menos precisión: unas 7 cifras. Ocupa <b>4 bytes</b>.',porque:'Existe para ahorrar memoria. En la uni casi siempre te conviene double.'},
+ type_char:{tag:'Tipo',title:'char',name:'carácter',que:'Crea una caja para <b>un único carácter</b>: una letra, un dígito o un símbolo. Ocupa <b>1 byte</b>.',porque:"Por dentro es un número pequeño: 'B' vale 66 según la tabla ASCII. Si le pones <code>[ ]</code> detrás (<code>char nombre[]</code>), ya no es un carácter: es una fila de caracteres, o sea, un texto.",ojo:"Siempre con comillas simples: <code>'B'</code>."},
+ var_decl:{tag:'Nombre de variable',title:'{name}',name:'nace una variable',que:'El nombre que tú eliges para esta caja de tipo <code>{vtype}</code>. Aquí se <b>declara</b>: la variable empieza a existir.',porque:'A partir de esta línea puedes usar <code>{name}</code> para leer o cambiar lo que guarda.',ojo:'Reglas: letras sin tildes, números y <code>_</code>. No puede empezar por número. <b>C distingue mayúsculas</b>: <code>edad</code> y <code>Edad</code> son dos variables distintas. Por convención, en minúscula.'},
+ var_use:{tag:'Variable',title:'{name}',name:'se usa su valor',que:'Aquí se <b>usa</b> la variable <code>{name}</code> (tipo <code>{vtype}</code>): C mira qué hay guardado en la caja y usa ese valor.',porque:'Como ya se declaró antes, aquí no se repite el tipo. Escribir el tipo otra vez sería intentar crear otra variable con el mismo nombre, y eso da error.'},
+ assign:{tag:'Operador',title:'=',name:'asignación',que:'Guarda el valor de la <b>derecha</b> en la variable de la <b>izquierda</b>.',porque:'No es el "igual" de matemáticas: se lee "pasa a valer". Por eso <code>edad = edad + 1;</code> tiene sentido: calcula edad + 1 y guarda el resultado en edad.',ojo:'Para comparar si dos cosas son iguales se usa <code>==</code>, doble (lección 3).'},
+ num_int:{tag:'Literal',title:'{text}',name:'número entero',que:'Un número entero escrito directamente en el código (se llama <i>literal</i>).',porque:'Como no tiene punto decimal, C lo trata como int. Esto importa: en <code>7 / 2</code> los dos son int, así que la división es entera.'},
+ num_double:{tag:'Literal',title:'{text}',name:'número decimal',que:'Un número con decimales escrito directamente en el código.',porque:'Como tiene punto, C lo trata como double. Siempre punto, nunca coma.'},
+ chr:{tag:'Literal',title:'{text}',name:'un carácter',que:'Un único carácter entre comillas simples.',porque:'Las comillas simples dicen "esto es UN carácter". Sin comillas, <code>B</code> sería el nombre de una variable, y como no existe, daría error.'},
+ brackets:{tag:'Símbolo',title:'[ ]',name:'corchetes',que:'Convierten la variable en un <b>array</b>: una fila de cajas del mismo tipo, una detrás de otra.',porque:"<code>char nombre[]</code> es una fila de chars, es decir, un texto. Si dejas los corchetes vacíos, C calcula el tamaño solo: las letras + 1 casilla extra para el <code>'\\0'</code> que marca el final. Mira la memoria en el Taller.",analogia:'Un tren: cada vagón guarda una letra.',ref:'Arrays: lección 6. Textos a fondo: lección 7.',ojo:'Los corchetes no sirven para abrir bloques: eso se hace con <code>{ }</code>.'},
+ op_div:{tag:'Operador',title:'/',name:'división',que:'Divide.',porque:'<b>Trampa clásica:</b> si los dos lados son int, el resultado es int y se <b>corta</b> la parte decimal: <code>7 / 2</code> da 3. Si al menos uno es double, salen decimales: <code>7.0 / 2</code> da 3.5.',ojo:'El tipo del resultado se decide antes de guardarlo. <code>double c = 7 / 2;</code> guarda 3.0, no 3.5.'},
+ op_mod:{tag:'Operador',title:'%',name:'resto',que:'Da el <b>resto</b> de la división entera: <code>7 % 2</code> = 1 (7 entre 2 da 3 y sobra 1).',porque:'Es muy útil: <code>n % 2 == 0</code> te dice si n es par, y <code>segundos % 60</code> te da los segundos que sobran de un minuto.',ojo:'Solo funciona con enteros. Fuera de un texto, <code>%</code> es el resto; dentro de un printf, marca un hueco.'},
+ op_arith:{tag:'Operador',title:'{text}',name:'aritmética',que:'<code>+</code> suma · <code>-</code> resta · <code>*</code> multiplica.',porque:'Como en matemáticas, <code>*</code> y <code>/</code> se hacen antes que <code>+</code> y <code>-</code>. Usa paréntesis para cambiar el orden: <code>(a + b) * 2</code>.'},
+ paren_expr:{tag:'Símbolo',title:'(',name:'agrupar',que:'Agrupan una operación para que se haga primero.',porque:'Igual que en matemáticas: <code>(a + b) * 2</code>.'},
+ close_paren_expr:{tag:'Símbolo',title:')',name:'cierre',que:'Cierra un paréntesis.',porque:'Cada <code>(</code> necesita su <code>)</code>.'},
+ cast:{tag:'Conversión',title:'(tipo)',name:'cast',que:'Convierte el valor de detrás a otro tipo, solo para esa operación.',porque:'<code>(double)a / b</code> hace que la división sea con decimales aunque a y b sean int.'},
+ comment:{tag:'Comentario',title:'//',name:'comentario',que:'Texto para personas. El compilador lo ignora por completo.',porque:'Sirve para explicar tu código a otros, y a ti mismo dentro de un mes.'},
+ generic:{tag:'Pieza',title:'{text}',name:'',que:'Una pieza del código.',porque:''}};
+const KCLS={hash:'c-pre',include:'c-pre',angle:'c-pre',header:'c-pre',int_main:'c-type',main:'c-fn',printf:'c-fn',void:'c-type',return:'c-kw',ret0:'c-num',num_int:'c-num',num_double:'c-num',chr:'c-str',quote_open:'c-str',quote_close:'c-str',str_text:'c-str',esc_n:'c-fmt',esc_other:'c-fmt',comment:'c-com',brace_open:'c-br',brace_close:'c-br',brackets:'c-br',paren_main:'c-br',close_paren_main:'c-br',paren_printf:'c-br',close_paren_printf:'c-br',paren_expr:'c-br',close_paren_expr:'c-br',var_decl:'c-var',var_use:'c-var',cast:'c-type'};
+
+function xrTokenize(src){
+  const toks=[];
+  src.split('\n').forEach((line,li)=>{
+    const L=li+1;const push=(text,kind)=>{if(text)toks.push({text,kind,line:L})};
+    const m=line.match(/^(\s*)(#)(\s*)(include)(\s*)(<)([^>]*)(>)(.*)$/);
+    if(m){push(m[1],'ws');push('#','hash');push(m[3],'ws');push('include','include');push(m[5],'ws');push('<','angle');push(m[7],'header');push('>','angle');push(m[9],'ws');push('\n','nl');return}
+    let i=0;const n=line.length;
+    while(i<n){const ch=line[i];
+      if(/\s/.test(ch)){let j=i;while(j<n&&/\s/.test(line[j]))j++;push(line.slice(i,j),'ws');i=j;continue}
+      if(ch==='/'&&line[i+1]==='/'){push(line.slice(i),'comment');break}
+      if(ch==='"'){push('"','qopen');let j=i+1,buf='';
+        while(j<n&&line[j]!=='"'){
+          if(line[j]==='\\'){push(buf,'str');buf='';push(line.slice(j,j+2),line[j+1]==='n'?'esc_n':'esc');j+=2;continue}
+          if(line[j]==='%'){const mm=line.slice(j).match(/^%[-+ 0#]*\d*(?:\.\d+)?(?:hh|h|ll|l|L)?[diouxXfFeEgGcsp%]/);if(mm){push(buf,'str');buf='';push(mm[0],'fmt');j+=mm[0].length;continue}}
+          buf+=line[j];j++}
+        push(buf,'str');if(j<n){push('"','qclose');j++}i=j;continue}
+      if(ch==="'"){let j=i+1;while(j<n&&line[j]!=="'"){if(line[j]==='\\')j++;j++}push(line.slice(i,j+1),'chr');i=j+1;continue}
+      if(/[A-Za-z_]/.test(ch)){let j=i;while(j<n&&/\w/.test(line[j]))j++;push(line.slice(i,j),'id');i=j;continue}
+      if(/[0-9]/.test(ch)){let j=i;while(j<n&&/[0-9.]/.test(line[j]))j++;push(line.slice(i,j),'num');i=j;continue}
+      push(ch,'p');i++}
+    push('\n','nl')});
+  const sig=toks.filter(t=>t.kind!=='ws'&&t.kind!=='nl');
+  const declared=new Map();let declType=null;const stack=[];
+  sig.forEach((t,i)=>{const prev=sig[i-1],nx=sig[i+1];
+    switch(t.kind){
+      case 'hash':case 'include':case 'angle':case 'header':case 'comment':case 'chr':t.key=t.kind;break;
+      case 'qopen':t.key='quote_open';break;case 'qclose':t.key='quote_close';break;
+      case 'str':t.key='str_text';break;case 'esc_n':t.key='esc_n';break;case 'esc':t.key='esc_other';break;
+      case 'fmt':{const c=t.text.slice(-1);t.key=c==='%'?'fmt_pct':'di'.includes(c)?'fmt_d':'fFeEgG'.includes(c)?(t.text.includes('.')?'fmt_prec':'fmt_f'):c==='c'?'fmt_c':c==='s'?'fmt_s':'fmt_other';break}
+      case 'num':t.key=prev&&prev.text==='return'?'ret0':t.text.includes('.')?'num_double':'num_int';break;
+      case 'id':{const w=t.text;
+        if(TYPES.includes(w)){if(nx&&nx.text==='main')t.key='int_main';else if(prev&&prev.text==='('&&nx&&nx.text===')')t.key='cast';else{t.key='type_'+w;declType=w}}
+        else if(['main','void','printf','return'].includes(w))t.key=w;
+        else if(declType&&prev&&(prev.key==='type_'+declType||prev.key==='comma_decl')){t.key='var_decl';declared.set(w,declType+(nx&&nx.text==='['?'[]':''))}
+        else if(declared.has(w))t.key='var_use';
+        else t.key='generic';
+        if(declared.has(w)){t.name=w;t.vtype=declared.get(w)}
+        break}
+      default:{const c=t.text;
+        if(c==='('){let k='paren_expr';if(prev&&prev.text==='main')k='paren_main';else if(prev&&prev.text==='printf')k='paren_printf';else if(nx&&TYPES.includes(nx.text)&&sig[i+2]&&sig[i+2].text===')')k='cast';stack.push(k);t.key=k}
+        else if(c===')'){const k=stack.pop()||'paren_expr';t.key=k==='cast'?'cast':'close_'+k}
+        else if(c==='{')t.key='brace_open';else if(c==='}')t.key='brace_close';
+        else if(c==='['||c===']')t.key='brackets';
+        else if(c===';'){t.key='semi';declType=null}
+        else if(c===',')t.key=stack[stack.length-1]==='paren_printf'?'comma_arg':declType?'comma_decl':'comma_arg';
+        else if(c==='=')t.key='assign';
+        else if(c==='/')t.key='op_div';else if(c==='%')t.key='op_mod';
+        else if('+-*'.includes(c))t.key='op_arith';else t.key='generic'}}
+    t.si=i});
+  return {toks,sig}}
+
+let xr={prog:0,sel:0,data:null};
+function fill(s,t){return s.replace(/\{name\}/g,esc(t.name||t.text)).replace(/\{vtype\}/g,esc(t.vtype||'')).replace(/\{text\}/g,esc(t.text))}
+function renderXr(){
+  const P=PROGS[xr.prog];xr.data=xrTokenize(P.src);
+  $('#progs').innerHTML=PROGS.map((p,i)=>`<button class="chip" data-p="${i}" aria-pressed="${i===xr.prog}">${esc(p.name)}</button>`).join('');
+  $('#progs').querySelectorAll('.chip').forEach(b=>b.addEventListener('click',()=>{xr.prog=+b.dataset.p;xr.sel=0;store.set('xrprog',xr.prog);$('#predictTa').value='';$('#predictOut').innerHTML='';renderXr()}));
+  let html='<div class="xr-line"><span class="n">1</span><span>',ln=1;
+  for(const t of xr.data.toks){
+    if(t.kind==='nl'){ln++;html+=`</span></div><div class="xr-line"><span class="n">${ln}</span><span>`;continue}
+    if(t.kind==='ws'){html+=esc(t.text);continue}
+    const cls=KCLS[t.key]||(t.key&&t.key.startsWith('type_')?'c-type':t.key&&t.key.startsWith('fmt')?'c-fmt':'');
+    html+=`<span class="tk ${cls}" data-si="${t.si}">${esc(t.text)}</span>`}
+  html=html.replace(/<div class="xr-line"><span class="n">\d+<\/span><span>$/,'');
+  $('#xrCode').innerHTML=html+'</span></div>';
+  $('#xrIdea').textContent=P.idea;
+  $('#xrCode').querySelectorAll('.tk').forEach(el=>el.addEventListener('click',()=>{xr.sel=+el.dataset.si;selXr()}));
+  selXr()}
+function selXr(){
+  const sig=xr.data.sig;const t=sig[xr.sel];if(!t)return;
+  $('#xrCode').querySelectorAll('.tk').forEach(el=>{const s=sig[+el.dataset.si];el.classList.toggle('sel',+el.dataset.si===xr.sel);el.classList.toggle('same',+el.dataset.si!==xr.sel&&!!t.name&&s.name===t.name)});
+  const E=EX[t.key]||EX.generic;
+  const lineToks=xr.data.toks.filter(x=>x.line===t.line&&x.kind!=='nl');
+  const ctx=lineToks.map(x=>x.si===t.si&&x.kind!=='ws'?`<mark>${esc(x.text)}</mark>`:esc(x.text)).join('').trim();
+  const sect=(k,lab,cls)=>E[k]?`<div${cls?` class="${cls}"`:''}><dt>${lab}</dt><dd>${fill(E[k],t)}</dd></div>`:'';
+  $('#ex').innerHTML=`<span class="ex-tag">${E.tag}</span>
+    <h2 class="ex-title"><span class="big">${fill(E.title,t)}</span>${E.name?`<span>${fill(E.name,t)}</span>`:''}</h2>
+    <p class="ex-ctx">Línea ${t.line}: <code>${ctx}</code></p>
+    <dl>${sect('que','Qué es')}${sect('porque','Por qué está ahí')}${sect('analogia','Imagínalo así')}${sect('ojo','Ojo','ojo')}${sect('ref','Lo verás más adelante')}</dl>
+    <div class="ex-nav"><button class="btn" id="xrPrev" ${xr.sel===0?'disabled':''}>← Anterior</button><span>Pieza ${xr.sel+1} de ${sig.length}</span><button class="btn" id="xrNext" ${xr.sel===sig.length-1?'disabled':''}>Siguiente →</button></div>`;
+  $('#xrPrev').addEventListener('click',()=>{if(xr.sel>0){xr.sel--;selXr()}});
+  $('#xrNext').addEventListener('click',()=>{if(xr.sel<sig.length-1){xr.sel++;selXr()}})}
+$('#xrCode').addEventListener('keydown',e=>{const n=xr.data.sig.length;
+  if(e.key==='ArrowRight'){e.preventDefault();xr.sel=Math.min(n-1,xr.sel+1);selXr()}
+  if(e.key==='ArrowLeft'){e.preventDefault();xr.sel=Math.max(0,xr.sel-1);selXr()}});
+$('#predictBtn').addEventListener('click',()=>{
+  const res=compileAndRun(PROGS[xr.prog].src);const real=res.output.replace(/\n$/,'').split('\n');
+  const guess=$('#predictTa').value.replace(/\s+$/,'');
+  if(!guess){$('#predictOut').innerHTML=`<p class="verdict meh">Primero escribe tu predicción. Aunque no estés seguro: equivocarte aquí es justo lo que hace que luego te acuerdes.</p>`;return}
+  const g=guess.split('\n');let okc=0;
+  const L=Math.max(real.length,g.length);let gh='',rh='';
+  for(let i=0;i<L;i++){const a=(g[i]||'').trimEnd(),b=real[i]||'';const ok=a===b;if(ok&&i<real.length)okc++;
+    gh+=`<span class="${ok?'ok':'bad'}">${esc(a)||'∅'}</span>\n`;rh+=`${esc(b)}\n`}
+  const all=okc===real.length&&g.length===real.length;
+  let extra='';
+  if(PROGS[xr.prog].id==='div'&&!all)extra=' Pista: pulsa la <code>/</code> y el <code>%</code> en el código de arriba y lee la explicación.';
+  $('#predictOut').innerHTML=`<p class="verdict ${all?'good':'meh'}">${all?'¡Perfecto! Has acertado todas las líneas.':`Has acertado ${okc} de ${real.length} líneas. Compara y busca el porqué.`+extra}</p>
+    <div class="cmp"><div><div class="label" style="margin-bottom:4px">Tu predicción</div><div class="col">${gh}</div></div><div><div class="label" style="margin-bottom:4px">Salida real</div><div class="col">${rh}</div></div></div>`});
+$('#toTaller').addEventListener('click',()=>{tl.set(PROGS[xr.prog].src);store.set('tlsrc',tl.get());go('taller');runTaller()});
+
+/* ================= TALLER ================= */
+const TL_DEFAULT=String.raw`#include <stdio.h>
+
+int main(void) {
+    int edad = 18;
+    double nota = 7.25;
+    char grupo = 'B';
+    char nombre[] = "Saul";
+
+    printf("%s tiene %d años\n", nombre, edad);
+    printf("Nota %.2f, grupo %c\n", nota, grupo);
+
+    // Prueba a cambiar cosas y pulsa Ctrl+Enter
+    return 0;
+}`;
+const BREAKS=[
+ ['Falta un ;',String.raw`#include <stdio.h>
+
+int main(void) {
+    int edad = 18
+    printf("Tengo %d años\n", edad);
+    return 0;
+}`],
+ ['[ ] en vez de { }',String.raw`#include <stdio.h>
+
+int main(void) [
+    printf("Hola\n");
+    return 0;
+]`],
+ ['Texto sin comillas',String.raw`#include <stdio.h>
+
+int main(void) {
+    char nombre[] = Saul;
+    printf("Me llamo %s\n", nombre);
+    return 0;
+}`],
+ ['"B" en un char',String.raw`#include <stdio.h>
+
+int main(void) {
+    char grupo = "B";
+    printf("Grupo %c\n", grupo);
+    return 0;
+}`],
+ ['Sin #include',String.raw`int main(void) {
+    printf("Hola\n");
+    return 0;
+}`],
+ ['%d con un double',String.raw`#include <stdio.h>
+
+int main(void) {
+    double nota = 7.25;
+    printf("Nota: %d\n", nota);
+    return 0;
+}`],
+ ['Variable sin valor',String.raw`#include <stdio.h>
+
+int main(void) {
+    int total;
+    printf("Total: %d\n", total);
+    return 0;
+}`],
+ ['Mayúsculas',String.raw`#include <stdio.h>
+
+int main(void) {
+    int edad = 18;
+    Printf("Edad: %d\n", Edad);
+    return 0;
+}`],
+ ['Olvidar el \\n',String.raw`#include <stdio.h>
+
+int main(void) {
+    printf("Hola");
+    printf("Adiós");
+    return 0;
+}`]];
+const tl=makeEditor($('#tlEditor'),{id:'tl-src',onRun:()=>runTaller(true),onChange:v=>store.set('tlsrc',v)});
+tl.set(store.get('tlsrc',TL_DEFAULT));
+function narrow(){try{return matchMedia("(max-width:920px)").matches}catch(e){return false}}
+function reveal(el){if(narrow())el.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"})}
+function runTaller(show){const res=compileAndRun(tl.get());renderResult($("#tlResult"),res,tl);renderMem($("#tlMem"),res);if(show===true)reveal($("#tlResult"))}
+$("#tlRun").addEventListener("click",()=>runTaller(true));
+$('#tlReset').addEventListener('click',()=>{tl.set(TL_DEFAULT);store.set('tlsrc',TL_DEFAULT);runTaller()});
+$('#breaks').innerHTML=BREAKS.map((b,i)=>`<button class="chip" data-b="${i}">${esc(b[0])}</button>`).join('');
+$('#breaks').querySelectorAll('.chip').forEach(b=>b.addEventListener('click',()=>{tl.set(BREAKS[+b.dataset.b][1]);store.set('tlsrc',tl.get());runTaller(true)}));
+
+/* ================= RETOS ================= */
+function outCheck(res,expected){
+  if(res.output===expected)return null;
+  if(res.output+'\n'===expected)return 'Casi: te falta el <code>\\n</code> al final.';
+  const a=res.output.split('\n'),b=expected.split('\n');
+  for(let i=0;i<Math.max(a.length,b.length);i++)if(a[i]!==b[i])return `La línea ${i+1} no coincide. Esperaba <code>${esc(b[i]??'(nada)')}</code> y ha salido <code>${esc(a[i]??'(nada)')}</code>. Fíjate en espacios, mayúsculas y signos.`;
+  return 'La salida no coincide exactamente.'}
+const fmtHas=(res,s)=>res.prog.fmts.some(f=>f.includes(s));
+const RETOS=[
+ {id:'hola',lvl:1,title:'Hola, mundo',text:'Escribe desde cero, sin mirar, un programa que muestre esta línea:',expect:'Hola, mundo\n',starter:'',
+  hint:'Necesitas cuatro cosas: el <code>#include</code>, <code>int main(void) { }</code>, un <code>printf</code> con <code>\\n</code> al final y <code>return 0;</code>.',
+  sol:PROGS[0].src,check:res=>{const e=outCheck(res,'Hola, mundo\n');return e?{ok:false,msg:e}:{ok:true}}},
+ {id:'arregla',lvl:1,title:'Arregla el programa',text:'Este es el programa de tu captura, con sus errores. Arréglalo y añade lo que falta para que muestre exactamente:',expect:'Me llamo Saul\nTengo 18 años\nClase B\n',
+  starter:String.raw`#include <stdio.h>
+int main() [
+    int Nombre = Saul;
+    char Clase = B;
+    int edad = 18;
+
+    printf("Me llamo %d\n" , Nombre);
+    return 0;
+
+
+]`,
+  hint:'Ve de uno en uno y compila tras cada cambio: 1) las llaves, 2) el tipo y las comillas del nombre, 3) las comillas de la clase, 4) el hueco del printf. Después añade los dos printf que faltan.',
+  sol:String.raw`#include <stdio.h>
+
+int main(void) {
+    char nombre[] = "Saul";
+    char clase = 'B';
+    int edad = 18;
+
+    printf("Me llamo %s\n", nombre);
+    printf("Tengo %d años\n", edad);
+    printf("Clase %c\n", clase);
+    return 0;
+}`,
+  check:res=>{const e=outCheck(res,'Me llamo Saul\nTengo 18 años\nClase B\n');if(e)return {ok:false,msg:e};
+    if(!res.vars.some(v=>v.arr)||!res.vars.some(v=>v.type==='char'&&!v.arr))return {ok:false,msg:'La salida está bien, pero guarda el nombre en un <code>char[]</code> y la clase en un <code>char</code>, y muéstralos con sus huecos.'};return {ok:true}}},
+ {id:'ficha',lvl:1,title:'Tu ficha',text:'Guarda en variables tu nombre (<code>char[]</code>), tu edad (<code>int</code>), tu nota media (<code>double</code>) y tu grupo (<code>char</code>). Muéstralos en 4 líneas, cada uno con su hueco, y la nota con 2 decimales. Por ejemplo:',expect:'Nombre: Saul\nEdad: 18\nNota: 7.25\nGrupo: B\n',
+  hint:'Los cuatro huecos que necesitas: <code>%s</code>, <code>%d</code>, <code>%.2f</code> y <code>%c</code>.',
+  sol:String.raw`#include <stdio.h>
+
+int main(void) {
+    char nombre[] = "Saul";
+    int edad = 18;
+    double nota = 7.25;
+    char grupo = 'B';
+
+    printf("Nombre: %s\n", nombre);
+    printf("Edad: %d\n", edad);
+    printf("Nota: %.2f\n", nota);
+    printf("Grupo: %c\n", grupo);
+    return 0;
+}`,
+  check:res=>{const has=t=>res.vars.some(v=>t==='arr'?v.arr:(!v.arr&&v.type===t));
+    const miss=[['arr','un char[] para el nombre'],['int','un int para la edad'],['double','un double para la nota'],['char','un char para el grupo']].filter(x=>!has(x[0])).map(x=>x[1]);
+    if(miss.length)return {ok:false,msg:'Te falta: '+miss.join(', ')+'.'};
+    const lines=res.output.replace(/\n$/,'').split('\n');if(lines.length!==4)return {ok:false,msg:`Tienen que salir 4 líneas y han salido ${lines.length}. ¿Has puesto un <code>\\n</code> al final de cada printf?`};
+    for(const s of ['%s','%d','%.2f','%c'])if(!fmtHas(res,s))return {ok:false,msg:`No encuentro el hueco <code>${s}</code> en ningún printf.`};
+    if(res.warnings.length)return {ok:false,msg:'Funciona, pero hay avisos. Arréglalos: en un examen cuentan.'};
+    return {ok:true}}},
+ {id:'rect',lvl:2,title:'Rectángulo',text:'Con <code>double base = 4.5;</code> y <code>double altura = 2;</code>, calcula el área y el perímetro <b>en variables</b> y muéstralos así:',expect:'Area: 9.00\nPerimetro: 13.00\n',
+  hint:'área = base * altura · perímetro = 2 * (base + altura). Declara <code>double area = ...;</code> y muéstralo con <code>%.2f</code>.',
+  sol:String.raw`#include <stdio.h>
+
+int main(void) {
+    double base = 4.5;
+    double altura = 2;
+    double area = base * altura;
+    double perimetro = 2 * (base + altura);
+
+    printf("Area: %.2f\n", area);
+    printf("Perimetro: %.2f\n", perimetro);
+    return 0;
+}`,
+  check:res=>{const e=outCheck(res,'Area: 9.00\nPerimetro: 13.00\n');if(e)return {ok:false,msg:e};
+    if(fmtHas(res,'9.00')||fmtHas(res,'13.00'))return {ok:false,msg:'Has escrito el resultado a mano dentro del texto. Tiene que calcularlo el programa.'};
+    if(!res.prog.opsUsed.has('*'))return {ok:false,msg:'No veo ninguna multiplicación. Calcula el área con <code>*</code>.'};return {ok:true}}},
+ {id:'div',lvl:2,title:'Esquiva la trampa',text:'Tienes <code>int a = 7;</code> e <code>int b = 2;</code>. Sin cambiar sus tipos, muestra el resultado de dividirlos con dos decimales:',expect:'3.50\n',
+  hint:'Si divides dos int, se corta el decimal. Haz que uno se trate como double solo para esa operación: <code>(double)a / b</code>.',
+  sol:String.raw`#include <stdio.h>
+
+int main(void) {
+    int a = 7;
+    int b = 2;
+    double r = (double)a / b;
+
+    printf("%.2f\n", r);
+    return 0;
+}`,
+  check:res=>{const e=outCheck(res,'3.50\n');if(e)return {ok:false,msg:e};
+    const a=res.vars.find(v=>v.name==='a'),b=res.vars.find(v=>v.name==='b');
+    if(!a||!b||a.type!=='int'||b.type!=='int')return {ok:false,msg:'<code>a</code> y <code>b</code> tienen que seguir siendo int.'};
+    if(fmtHas(res,'3.5'))return {ok:false,msg:'No vale escribir 3.50 a mano en el texto.'};
+    if(!res.prog.opsUsed.has('/'))return {ok:false,msg:'Tienes que dividir a entre b.'};return {ok:true}}},
+ {id:'seg',lvl:3,title:'Segundos a horas',text:'Tienes <code>int segundos = 3725;</code>. Muestra cuántas horas, minutos y segundos son, usando solo <code>/</code> y <code>%</code>:',expect:'1 h 2 min 5 s\n',
+  hint:'Una hora son 3600 segundos: <code>segundos / 3600</code> da las horas. Lo que sobra (<code>segundos % 3600</code>) lo repartes igual entre minutos (60) y segundos.',
+  sol:String.raw`#include <stdio.h>
+
+int main(void) {
+    int segundos = 3725;
+    int h = segundos / 3600;
+    int resto = segundos % 3600;
+    int min = resto / 60;
+    int s = resto % 60;
+
+    printf("%d h %d min %d s\n", h, min, s);
+    return 0;
+}`,
+  check:res=>{const e=outCheck(res,'1 h 2 min 5 s\n');if(e)return {ok:false,msg:e};
+    if(!res.prog.opsUsed.has('/')||!res.prog.opsUsed.has('%'))return {ok:false,msg:'Tienes que usar <code>/</code> y <code>%</code>.'};
+    if(res.prog.fmts.some(f=>/1 h|2 min|5 s/.test(f)))return {ok:false,msg:'No vale escribir los números a mano en el texto: tiene que calcularlos el programa.'};
+    const s=res.vars.find(v=>v.name==='segundos');if(!s)return {ok:false,msg:'Usa la variable <code>segundos</code>.'};return {ok:true}}},
+ {id:'swap',lvl:3,title:'Intercambio',text:'Empieza con <code>int a = 5;</code> e <code>int b = 9;</code>. Intercambia sus valores <b>sin volver a escribir 5 ni 9</b> y muestra:',expect:'a = 9, b = 5\n',
+  hint:'Si haces <code>a = b;</code>, pierdes el valor de a para siempre. Guárdalo antes en una tercera variable: <code>int aux = a;</code>. Es como cambiar el contenido de dos vasos: necesitas un tercero.',
+  sol:String.raw`#include <stdio.h>
+
+int main(void) {
+    int a = 5;
+    int b = 9;
+    int aux = a;
+    a = b;
+    b = aux;
+
+    printf("a = %d, b = %d\n", a, b);
+    return 0;
+}`,
+  check:res=>{const e=outCheck(res,'a = 9, b = 5\n');if(e)return {ok:false,msg:e};
+    const n5=res.prog.nums.filter(x=>x===5).length,n9=res.prog.nums.filter(x=>x===9).length;
+    if(n5>1||n9>1)return {ok:false,msg:'Has vuelto a escribir 5 o 9. El intercambio tiene que hacerse moviendo los valores entre variables.'};
+    if(res.prog.fmts.some(f=>/[59]/.test(f)))return {ok:false,msg:'No vale escribir los números en el texto del printf.'};
+    const a=res.vars.find(v=>v.name==='a'),b=res.vars.find(v=>v.name==='b');if(!a||!b||a.val!==9||b.val!==5)return {ok:false,msg:'Al final, a tiene que valer 9 y b tiene que valer 5.'};return {ok:true}}}];
+let solved=new Set(store.get('solved',[]));let cur=store.get('reto',0);if(cur>=RETOS.length)cur=0;let solArm=false;
+const drafts=store.get('drafts',{});
+const rtEd=makeEditor($('#rtEditor'),{id:'rt-src',onRun:checkReto,onChange:v=>{drafts[RETOS[cur].id]=v;store.set('drafts',drafts)}});
+function progress(){$('#progTxt').textContent=`Retos ${solved.size}/${RETOS.length}`;$('#progBar').style.width=(solved.size/RETOS.length*100)+'%'}
+const LV={1:['l1','FÁCIL'],2:['l2','MEDIO'],3:['l3','RETO']};
+function renderRetos(){
+  $('#rtList').innerHTML=RETOS.map((r,i)=>`<button class="rt-item ${solved.has(r.id)?'done':''}" data-r="${i}" aria-current="${i===cur}"><span class="st">${solved.has(r.id)?'✓':''}</span><span class="t">${esc(r.title)}</span><span class="lvl ${LV[r.lvl][0]}">${LV[r.lvl][1]}</span></button>`).join('');
+  $('#rtList').querySelectorAll('.rt-item').forEach(b=>b.addEventListener('click',()=>{cur=+b.dataset.r;store.set('reto',cur);loadReto()}));
+  const r=RETOS[cur];
+  $('#rtHead').innerHTML=`<h2>${esc(r.title)} <span class="lvl ${LV[r.lvl][0]}">${LV[r.lvl][1]}</span>${solved.has(r.id)?'<span class="lvl l1">✓ RESUELTO</span>':''}</h2><p>${r.text}</p><div class="expect">${showNL(r.expect,true)}</div>`}
+function loadReto(){solArm=false;$('#rtSol').textContent='Ver solución';$('#rtExtra').innerHTML='';$('#rtResult').innerHTML='';const r=RETOS[cur];rtEd.set(drafts[r.id]??r.starter);renderRetos()}
+function checkReto(){
+  const r=RETOS[cur];const res=compileAndRun(rtEd.get());
+  let v;if(!res.ok||res.rerr)v={ok:false,msg:'Primero tiene que compilar y ejecutarse sin errores. Lee el mensaje de abajo.'};else v=r.check(res);
+  const box=document.createElement('div');
+  box.innerHTML=`<p class="verdict ${v.ok?'good':'meh'}" style="margin-bottom:12px">${v.ok?'✓ ¡Reto superado! Buen trabajo.':'✗ '+v.msg}</p>`;
+  const inner=document.createElement('div');box.appendChild(inner);renderResult(inner,res,rtEd);
+  $('#rtResult').innerHTML='';$('#rtResult').appendChild(box);
+  reveal($("#rtResult"));
+  if(v.ok&&!solved.has(r.id)){solved.add(r.id);store.set('solved',[...solved]);progress();renderRetos()}}
+$('#rtCheck').addEventListener('click',checkReto);
+$('#rtHint').addEventListener('click',()=>{$('#rtExtra').innerHTML=`<div class="hintbox"><b>Pista:</b> ${RETOS[cur].hint}</div>`});
+$('#rtSol').addEventListener('click',()=>{
+  if(!solArm){solArm=true;$('#rtSol').textContent='Sí, enséñamela';$('#rtExtra').innerHTML=`<div class="hintbox">¿Seguro? Si llevas menos de 5 minutos, prueba antes con la pista. Pelearse con el problema es lo que hace que se te quede.</div>`;return}
+  const r=RETOS[cur];$('#rtExtra').innerHTML=`<div class="solbox"><div class="label" style="margin-bottom:8px">Solución (léela, cierra y escríbela tú de memoria)</div><pre class="code snip">${highlight(r.sol)}</pre></div>`});
+
+/* ================= NAVEGACIÓN ================= */
+const VIEWS=['rayos','taller','retos','chuleta'];
+function go(v){if(!VIEWS.includes(v))v='rayos';
+  VIEWS.forEach(x=>{$('#view-'+x).hidden=x!==v;$('#tab-'+x).setAttribute('aria-selected',String(x===v))});
+  store.set('tab',v);
+  if(v==='taller'){tl.refresh();if(!$('#tlResult').innerHTML)runTaller()}
+  if(v==='retos')rtEd.refresh()}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>go(b.dataset.tab)));
+
+xr.prog=Math.min(store.get('xrprog',0),PROGS.length-1);
+renderXr();loadReto();progress();
+runTaller();
+const h=(location.hash||'').slice(1);
+go(VIEWS.includes(h)?h:store.get('tab','rayos'));
+// Versión instalable (GitHub Pages): funciona también sin conexión
+if('serviceWorker' in navigator&&/github\.io$/.test(location.hostname)){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+})();
+</script>
+</body>
+</html>
